@@ -1,0 +1,251 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+*:focus {
+    outline: none;
+}
+
+body {
+    margin: 0;
+}
+
+/*---TOP---*/
+#top {
+    width: 100%;
+}
+
+h1 {
+    padding: 2vmin 2vmin;
+    margin: 0;
+    background-color: black;
+    color: white;
+    text-align: center;
+    font-weight: 700;
+    font-size: 7.5vw;
+}
+
+#date-container, .top-container {
+    box-sizing: content-box;
+    padding-top: 1.5vmin;
+    padding-bottom: 1.5vmin;
+    margin: auto;
+    text-align: center;
+    background-color: gray;
+    line-height: 0;
+}
+
+#date-type-button, #date-val-button {
+    font-weight: 500;
+    font-size: 5vmin;
+    border-style: none;
+    width: 35%;
+    border-radius: 5px;
+    padding-left: 7px;
+    padding-right: 7px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQwOCAxMDg4cTAgMjYtMTkgNDVsLTQ0OCA0NDhxLTE5IDE5LTQ1IDE5dC00NS0xOWwtNDQ4LTQ0OHEtMTktMTktMTktNDV0MTktNDUgNDUtMTloODk2cTI2IDAgNDUgMTl0MTkgNDV6Ii8+PC9zdmc+'),
+	  linear-gradient(to bottom, white 0%,white 100%);
+	background-repeat: no-repeat, repeat;
+	background-position: right .3em top 25%, 0 0;
+    background-size: .65em auto, 100%;
+}
+
+#date-type-button::-ms-expand, #date-val-button::-ms-expand {
+	display: none;
+}
+
+.ui-button {
+    color: black !important;
+}
+
+.ui-menu-item-wrapper {
+    font-size: 5vmin;
+}
+
+.custom-date {
+    text-align: center;
+    padding: 2px;
+    font-weight: 500;
+    font-size: 5vmin;
+    border-radius: 5px;
+    border: solid gray;
+    border: none;
+    width: 35vmin;
+}
+
+#ui-datepicker-div {
+    z-index: 999 !important
+}
+
+select::-ms-expand {
+    border: none;
+}
+
+/*---MAIN---*/
+#main-container {
+    width: 100%; 
+}
+
+/*map*/
+#map {
+    height: 50vh;
+    width: 100%;
+    float: left; 
+    background-color: white;
+}
+
+.leaflet-control-attribution {
+    font-size: 2vmin !important;
+}
+
+/*shootings reports*/
+#report {
+    width: 100%;
+    float: left;
+    padding: 0 10px 10px 10px;
+    overflow: auto;
+}
+
+.incident_header>a, .incident_header {
+    color: black;
+    text-decoration: none;
+    font-weight: 1000;
+    font-size: 6vmin;
+    font-family: 'Roboto Condensed', sans-serif;
+    text-align: center;
+    pointer-events: none;
+    cursor: default;
+    text-align-last: center;
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+.label {
+    padding-right: 20px;
+}
+
+.datetime {
+    font-weight: 500;
+    text-align: center;
+}
+
+hr {
+    padding: 0.5px;
+    background-color: black;
+    margin-top: 5px;
+}
+
+#report td {
+    text-align: center;
+    padding: 0 10px;
+    width: 50% !important;
+}
+
+table {
+    margin: auto;
+    width: 100% !important;
+}
+
+#report>p {
+    margin: 0;
+    text-align: center;
+    font-size: 4vmin;
+}
+
+#report>p:first-child {
+    margin: 10px 0 0;
+}
+
+.incident, .people_table {
+    font-size: 4.5vmin;
+}
+
+/* large screens */
+@media only screen and (min-width: 800px) and (min-height: 400px) {
+    #date-container, .top-container {
+        padding-top: 0.85vmin;
+        padding-bottom: 0.85vmin;
+     }
+    
+    #date-type-button, #date-val-button {
+        width: 150px;
+        font-size: 3.25vmin;
+        padding-top: 1px;
+        padding-bottom: 1px;
+    }
+    
+    .ui-menu-item-wrapper {
+        font-size: 3.25vmin;
+    }
+
+    .custom-date {
+        width: 20vmin;
+        font-size: 3.25vmin;
+    }
+
+    #map {
+        width: 65%;
+        height: 100%;
+    }
+
+    #report {
+        width: 35%;
+        height: 100%;
+    }
+
+    iframe {
+        width: 33%;
+        height: 50vh;
+        overflow: hidden;
+        border-top: gray solid 2px;
+        border-bottom: gray solid 2px;
+        border-left: none;
+        border-right: none;
+        position: absolute;
+        background-color: white;
+    }
+
+    .leaflet-control-attribution {
+        font-size: 12px !important;
+    }
+
+    #report>p {
+        font-size: 1.3vw;
+    }
+
+    h1 {
+        font-size: 400%;
+    }
+
+    .incident_header>a, .incident_header {
+        font-size: 4vmin;
+    }
+    
+    .incident, .people_table {
+        font-size: 16px;
+    }
+
+    hr {
+        padding: 1px;
+    }
+}
+
+/* adjustments for iPad */
+@media all and (device-width: 1024px) and (device-height: 768px) {
+    #date-type-button, #date-val-button {
+        width: 150px;
+  }
+}
+
+/* adjustments for iPad pro */
+@media all and (device-width: 1366px) and (device-height: 1024px) {
+    #date-type-button, #date-val-button {
+        width: 160px;
+    }
+}

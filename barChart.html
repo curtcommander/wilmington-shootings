@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wilmginton Shootings</title>
+    <meta charset="UTF-8">
+    <meta id="viewport" name="viewport" content ="width=device-width, initial-scale = 1">
+    <!--css-->
+    <link rel="stylesheet" href="css/barChart.min.css" type='text/css'>
+    <!--fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed" rel="stylesheet">
+    <!--d3-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--IE Compatability-->
+    <script src="https://cdn.jsdelivr.net/bluebird/3.5.0/bluebird.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+    <!--jQuery UI-->
+    <script src="js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+</head>
+<body>
+<div id='container'>
+        <div id='containerSelect'>
+            <select id='seriesSelect'>
+                    <option value="0">Incidents</option>
+                    <option value="1">Victims</option>
+                    <option value="2">Incidents YTD</option>
+                    <option value="3">Victims YTD</option>
+            </select>
+        </div>        
+    <svg id='mainSVG'></svg>
+    <svg id='legendSVG'></svg>
+    <script src="js/barChart.min.js"></script>    
+</div>
+</body>
+</html>
