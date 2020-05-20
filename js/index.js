@@ -82,7 +82,7 @@ $( '#map' ).on('click', resizeIcons);
 var dataChron, yearCurrent, year;
 var dataYearly = {};
 var yearAll = 2011;
-d3.csv('../data/yearlyData.csv').then(function(data) {
+d3.csv('data/yearlyData.csv').then(function(data) {
     yearCurrent = data[0].year;
     while (yearAll <= yearCurrent) {
         dataYearly[yearAll] = [];
@@ -93,7 +93,7 @@ d3.csv('../data/yearlyData.csv').then(function(data) {
 })
 
 // initial load and plot for current year data
-fetch('../data/incidentDataCurrent.zip').then(function (response) {
+fetch('data/incidentDataCurrent.zip').then(function (response) {
     response.arrayBuffer().then(function (buffer) {
         var blob = new Blob([buffer], {type : "application/zip"});
         var zip = new JSZip();
@@ -120,7 +120,7 @@ fetch('../data/incidentDataCurrent.zip').then(function (response) {
     })
 }).then(function () {
     // load rest of data into dataChron and dataYearly objects
-    fetch('../data/incidentDataPrevious.zip').then(function (response) {
+    fetch('data/incidentDataPrevious.zip').then(function (response) {
         response.arrayBuffer().then(function (buffer) {
             var blob = new Blob([buffer], {type : "application/zip"});
             var zip = new JSZip();

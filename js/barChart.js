@@ -212,7 +212,7 @@ function hoverHandler() {$( 'rect' ).hover(
 
 // read in data, plot, label    
 colors = ['black', '#D90022'];
-d3.csv('../data/yearlyData.csv')
+d3.csv('data/yearlyData.csv')
 .then(function(data) {
     window.data = data;
     plot(data);
