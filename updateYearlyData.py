@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 '''
-This script scrapes yearly data from Wilmington Shootings website.
+This script scrapes yearly data from the Wilmington Shootings website.
 (https://data.delawareonline.com/utils/shootings.php)
 
 Totals for incidents, homicide incidents, victims, and deaths are found
-for year and year-to-date
+for year and year-to-date.
 
-Data is written to yearlyData.csv in path_out (set in config.py)
+Data is written to yearlyData.csv in WilmingtonShootings/data/.
 
 Required packages:
   - requests
@@ -15,10 +15,13 @@ Required packages:
   - pandas
 '''
 
-from config import path_out
+import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+
+# path to data subdirectory
+path_data = os.path.dirname(os.path.realpath(__file__)) + '/data/'
 
 # get and parse response
 url = 'https://data.delawareonline.com/utils/shootings.php'
@@ -39,4 +42,4 @@ for row in rows:
 data_df = pd.DataFrame(data)
 data_df.columns = ['year','incidents','homicideIncidents','victims','killed',
                 'incidentsYTD', 'homicideIncidentsYTD','victimsYTD','killedYTD']
-data_df.to_csv(path_out+'/yearlyData.csv', index = False)
+data_df.to_csv(path_data + 'yearlyData.csv', index = False)

@@ -1,27 +1,17 @@
 #!/usr/bin/env python3
 
 '''
-This script scrapes incident data from Wilmington Shootings website.
+This script scrapes incident data from the Wilmington Shootings website.
 (http://data.delawareonline.com/webapps/crime/)
 
 html, lat, long, date, and year are found for each incident.
-Files containing this data are outputted.
+Files containing this data are outputted. Existing data files 
+are updated or new data files are created and written to.
 
-An API key is needed for Google Maps Geocoding API.
-This is set in config.py (google_maps_key).
+All data files are located in WilmingtonShootings/data/.
 
-Optional input files for when updating existing data:
-  - shootingsDataCurrent.csv
-  - shootingsDataPrevious.csv
-Input files read from path_in (set in config.py).
-
-Output files:
-  - shootingsDataCurrent.csv
-  - shootingsDataPrevious.csv
-  - shootingsDataCurrent.csv
-  - shootingsDataCurrent.zip
-  - shootingsDataPrevious.zip
-Output files written to in path_out (set in config.py).
+An API key is needed for the Google Maps Geocoding API.
+This is set in config.py (string named google_maps_key).
 
 Required packages:
   - requests
@@ -30,31 +20,38 @@ Required packages:
   - pandas
 '''
 
-from config import google_maps_key, path_in, path_out
+# get path to data subdirectory
 import os
 import requests
 from bs4 import BeautifulSoup
 import re
 from parseDate import parse_date
 import webd
+from config import google_maps_key
 import json
 from time import sleep
 import pandas as pd
 from zipfile import ZipFile, ZIP_DEFLATED
 
+# path to data subdirectory
+path_data = os.path.dirname(os.path.realpath(__file__)) + '/data/'
+
 #############################################
 ### get old data and most recent incident ###
 #############################################
 
-file_list = os.listdir(path_in)
+# clear data_old_df and data_recent if rerunning script in IDE
 if 'data_old_df' in globals():
     del data_old_df
 if 'data_recent' in globals():
     del data_recent    
 
+# list of files in data subdirectory
+file_list = os.listdir(path_data)
+
 # shootingsDataCurrent.csv exists
-if 'shootingsDataCurrent.csv' in file_list:
-    data_old_current_df = pd.read_csv(path_in+'shootingsDataCurrent.csv')
+if 'incidentDataCurrent.csv' in file_list:
+    data_old_current_df = pd.read_csv(path_data + 'incidentDataCurrent.csv')
     # data_old_current_df not empty
     if not data_old_current_df.empty:
         
@@ -65,8 +62,8 @@ if 'shootingsDataCurrent.csv' in file_list:
         data_recent = list(data_old_current_df.iloc[0,2:5])
              
 # shootingsDataPrevious.csv exists
-if 'shootingsDataPrevious.csv' in file_list:
-    data_old_previous_df = pd.read_csv(path_in+'shootingsDataPrevious.csv')
+if 'incidentDataPrevious.csv' in file_list:
+    data_old_previous_df = pd.read_csv(path_data + 'incidentDataPrevious.csv')
     
     # data_old_previous not empty
     if not data_old_previous_df.empty:
@@ -176,7 +173,7 @@ for page_num in pages:
         print('\rCurrent page: '+str(page_num)+' of '+str(num_pages), end='\r')
     # data_recent reached
     else:
-        print('\nEnd of new data reached', end='\r')
+        print('\nEnd of new data reached.', end='\r')
         break
      
 ####################################
@@ -185,15 +182,15 @@ for page_num in pages:
     
 # no new data
 if data_new == []:
-    print('No new data to be added')
+    print('No new data to be added.')
 # new data to be added
 else:
     num_coords_not_found = len(data_coords_not_found)
     if num_coords_not_found == 0:
-        print('\nCoordinates found for all new incidents')
+        print('\nCoordinates found for all new incidents.')
     else:
         print('\nCoordinates not found for '+str(num_coords_not_found)+
-              ' of '+str(count_new_incidents)+' new incidents')
+              ' of '+str(count_new_incidents)+' new incidents.')
         print('(data in data_coords_not_found)')
     
     # format and combine new data with old data
@@ -207,19 +204,21 @@ else:
     # current data is all data for the current year
     year_current = data_df.iloc[0,0]
     data_current_df = data_df.loc[data_df['YEAR'] == year_current]
-    data_current_df.to_csv(path_out+'/shootingsDataCurrent.csv', index = False)
+    data_current_df.to_csv(path_data + 'incidentDataCurrent.csv', index = False)
     
     # get previous data and write to shootingsDataPrevious.csv
     # previous data is all data before the current year
     data_previous_df = data_df.loc[data_df['YEAR'] != year_current]
-    data_previous_df.to_csv(path_out+'/shootingsDataPrevious.csv', index = False)
+    data_previous_df.to_csv(path_data + 'incidentDataPrevious.csv', index = False)
     
     # write data to zip files
-    with ZipFile(path_out + 'shootingsDataCurrent.zip', 'w', ZIP_DEFLATED) as zip:
-        zip.write('shootingsDataCurrent.csv')
-    
-    with ZipFile(path_out + 'shootingsDataPrevious.zip', 'w', ZIP_DEFLATED) as zip:
-        zip.write('shootingsDataPrevious.csv')
+    with ZipFile(path_data + 'incidentDataCurrent.zip', 'w', ZIP_DEFLATED) as zip:
+        with open(path_data + 'incidentDataCurrent.csv' , 'r') as f:
+            zip.writestr('incidentDataCurrent.csv', f.read())
+        
+    with ZipFile(path_data + 'incidentDataPrevious.zip', 'w', ZIP_DEFLATED) as zip:
+        with open(path_data + 'incidentDataPrevious.csv' , 'r') as f:
+            zip.writestr('incidentDataPrevious.csv', f.read())
     
     # print number of new incidents added to data files
-    print(str(len(data_new))+' new incidents added')
+    print(str(len(data_new))+' new incidents added.')

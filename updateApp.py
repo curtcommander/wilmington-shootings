@@ -15,16 +15,19 @@ Required packages:
   - pandas 
 '''
 
-from config import path_in
-import sys
-sys.path.append(path_in)
 import re
 import pandas as pd
 import math
 import os
 
+# path to root directory (WilmingtonShootings)
+path_root = os.path.dirname(os.path.realpath(__file__)) + '/'
+
+# path to data subdirectory
+path_data = path_root + 'data/'
+
 # get year for most recent data (yearCurrent)
-yearly_data = pd.read_csv('yearlyData.csv')
+yearly_data = pd.read_csv(path_data + 'yearlyData.csv')
 year_current = yearly_data.iloc[0,0]
 
 #########################
@@ -50,7 +53,7 @@ while year <= year_current:
 select_element = "<select id='date-val'>"+html+"</select>"
 
 # update select element in index.html
-with open('index.html', 'r+') as f:
+with open(path_root + 'index.html', 'r+') as f:
     index = f.read()
     select_element_old = re.search('<select.*?id= *["\']date-val["\'].*?</select>', index).group(0)
     index = index.replace(select_element_old, select_element)
@@ -75,11 +78,11 @@ max_ytds = ytds.max().max()
 y_max_ytds = math.ceil(max_ytds * percent_markup)
     
 # write to file
-files_path_in = os.listdir(path_in)
+files_path_in = os.listdir(path_root)
 files = ['barChart.js', 'barChart.min.js']
 for file in files:
     if file in files_path_in:
-        with open(file, 'r+') as f:
+        with open(path_root + 'js/' + file, 'r+') as f:
             js = f.read()
             
             # set yearCurrent
