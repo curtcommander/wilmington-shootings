@@ -93,13 +93,13 @@ d3.csv('../data/yearlyData.csv').then(function(data) {
 })
 
 // initial load and plot for current year data
-fetch('../data/shootingsDataCurrent.zip').then(function (response) {
+fetch('../data/incidentDataCurrent.zip').then(function (response) {
     response.arrayBuffer().then(function (buffer) {
         var blob = new Blob([buffer], {type : "application/zip"});
         var zip = new JSZip();
         zip.loadAsync(blob)
         .then(function (zip) {
-            return zip.file('shootingsDataCurrent.csv').async('string');
+            return zip.file('incidentDataCurrent.csv').async('string');
     })
     .then(function(dataAsString) {
         return d3.csvParse(dataAsString);
@@ -120,13 +120,13 @@ fetch('../data/shootingsDataCurrent.zip').then(function (response) {
     })
 }).then(function () {
     // load rest of data into dataChron and dataYearly objects
-    fetch('../data/shootingsDataPrevious.zip').then(function (response) {
+    fetch('../data/incidentDataPrevious.zip').then(function (response) {
         response.arrayBuffer().then(function (buffer) {
             var blob = new Blob([buffer], {type : "application/zip"});
             var zip = new JSZip();
             zip.loadAsync(blob)
             .then(function (zip) {
-                return shootingsData = zip.file('shootingsDataPrevious.csv').async('string');
+                return incidentData = zip.file('incidentDataPrevious.csv').async('string');
             })
         .then(function (dataAsString) {
             return d3.csvParse(dataAsString);
