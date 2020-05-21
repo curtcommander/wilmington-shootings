@@ -7,11 +7,15 @@
     outline: none;
 }
 
+:root {
+    --color-marker: #D90022;
+    --color-selected: black;
+}
+
 body {
     margin: 0;
 }
 
-/*---TOP---*/
 #top {
     width: 100%;
 }
@@ -102,6 +106,14 @@ select::-ms-expand {
 
 .leaflet-control-attribution {
     font-size: 2vmin !important;
+}
+
+.leaflet-data-marker path {
+    fill: var(--color-marker);
+}
+
+.marker-selected path {
+    fill: var(--color-selected);
 }
 
 /*shootings reports*/

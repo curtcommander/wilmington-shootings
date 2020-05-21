@@ -8,8 +8,8 @@ const zoom = 14;
  
 // base map
 const map = L.map('map')
-    .setView(center, zoom)
-    .setMaxBounds(L.latLngBounds([[39.8261, -75.4698], [39.6661, -75.6298]]) 
+             .setView(center, zoom)
+             .setMaxBounds(L.latLngBounds([[39.8261, -75.4698], [39.6661, -75.6298]]) 
 );
 
 // tiles
@@ -28,8 +28,13 @@ var markers = L.layerGroup();
 var markerSelected = L.layerGroup();
 
 // ensure map loads properly
-$( window ).on('load', function () {
-    map.invalidateSize()});
+window.onload = function() {
+    map.invalidateSize()
+}
+
+/////////////
+/// ICONS ///
+/////////////
 
 /////////////
 /// ICONS ///
@@ -46,29 +51,36 @@ function getIconSize() {
 };
 
 // initialize icons
-function initializeIcons() {
-    var size = getIconSize();
-    gunIcon = L.icon({
-            iconUrl: 'gunIcon.png',
-            iconSize: [size,size]
-        });
-    gunIconSelected = L.icon({
-            iconUrl: 'gunIconSelected.png',
-            iconSize: [size,size]
-        });
-};
+const svgTemplate = L.Util.template(' \
+<svg version="1.1" class="leaflet-data-marker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 15.847 15.847" style="enable-background:new 0 0 15.847 15.847;" xml:space="preserve"> \
+    <path d="M15.847,5.228V4.052h-0.065V2.931h-0.064V2.534H15.26V2.93c0,0-11.083,0.078-13.018,0 \
+        c-0.296,0-1.986,0.167-0.291,2.773c0,0,0.77,1.168-0.285,2.471c-1.041,1.284-1.51,3.885-1.632,4.671H0v0.468h4.803v-0.468v-0.43 \
+        c-2.075,0.382,1.434-4.447,1.278-3.634c0.113,0.029,0.23,0.047,0.352,0.047h1.25c0.772,0,1.797-0.826,1.797-1.599 \
+        c0-0.335-0.118-0.642-0.314-0.883h6.185l0.2-0.736h0.262V5.254H15.77l0.011-0.026H15.847z M7.685,8.144h-1.25 \
+        c-0.092,0-0.181-0.015-0.265-0.04c0.073-0.429,0.129-0.813,0.169-1.112c0.105,0.347,0.31,0.71,0.713,0.867 \
+        C7.08,7.87,7.109,7.875,7.138,7.875c0.094,0,0.184-0.058,0.221-0.15c0.047-0.123-0.014-0.26-0.136-0.308 \
+        c-0.417-0.162-0.5-0.792-0.516-1.068h1.205c0.393,0.102,0.686,0.459,0.686,0.883C8.598,7.734,8.188,8.144,7.685,8.144z \
+        M14.098,5.612H7.924l1.072-0.357h5.102C14.098,5.255,14.098,5.612,14.098,5.612z"/> \
+</svg>');
+const icon = L.divIcon({
+      className: "leaflet-data-marker",
+      html: svgTemplate,
+})
 
 // adjust icon sizes
 function resizeIcons() {
-    var size = getIconSize();
-    $( '.leaflet-marker-icon' ).css({
-        'width': size,
-        'height': size
-        })
-};
-map.on ('resize', resizeIcons);
-map.on('zoomend', resizeIcons);
-$( '#map' ).on('click', resizeIcons);
+    const size = getIconSize();
+    // change size of icon object
+    icon.options.iconSize = [size, size];
+    // adjust size of existing icons
+    const w = String(size) + 'px';
+    document.querySelectorAll('#map svg:not(.leaflet-zoom-animated)').forEach(function(svg) {
+        svg.style.width = w;
+        svg.style.height = w;
+    })
+}
+map.on('resize', resizeIcons)
+   .on('zoomstart', resizeIcons)
 
 /////////////////
 /// LOAD DATA ///
@@ -106,13 +118,12 @@ fetch('data/incidentDataCurrent.zip').then(function (response) {
     }).then( function(data) {
         // write into dataChron
         dataChron = data;
-        initializeIcons();
         for (i = 0; i < dataChron.length; i++) {
             let d = dataChron[i];
             // write into dataYearly
             dataYearly[yearCurrent].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
             // plot
-            L.marker([d.LAT, d.LONG],{icon: gunIcon})
+            L.marker([d.LAT, d.LONG],{icon: icon})
             .on("click", onClick)
             .addTo(markers)};
         markers.addTo(map);
@@ -263,7 +274,7 @@ function plotYearly() {
     year = Number($( '#date-val' ).val());
     if (year) {
         for (i = 0; i < dataYearly[year].length; i++) {
-            L.marker([dataYearly[year][i].LAT,dataYearly[year][i].LONG],{icon: gunIcon})
+            L.marker([dataYearly[year][i].LAT,dataYearly[year][i].LONG],{icon: icon})
             .on("click", onClick)
             .addTo(markers)};
         markers.addTo(map);
@@ -294,7 +305,7 @@ function plotCustomDate() {
         let d = dataChron[i];
         d.DATE = adjustTimeZone(new Date(d.DATE));
         if (d.DATE >= fromDateRange && d.DATE <= toDateRange) {
-            L.marker([d.LAT, d.LONG],{icon: gunIcon})
+            L.marker([d.LAT, d.LONG],{icon: icon})
             .on("click", onClick)
             .addTo(markers)
             // first incident in date range found
@@ -313,14 +324,23 @@ function plotCustomDate() {
 // initialize seriesVal, used in barChart.html
 var seriesVal = 0;
 
+function unselectMarker() {
+    const markerSelectedOld = document.querySelector('.marker-selected');
+    if (markerSelectedOld) {
+        markerSelectedOld.classList.remove('marker-selected');
+    }
+}
+
 // handler for when marker is clicked
-function onClick() {
+function onClick(e) {
     // clicking marker already selected pulls up default report
-    if (Object.keys(markerSelected._layers)[0] == this._leaflet_id) {
-        defaultReport();
+    const markerSelectedOld = document.querySelector('.marker-selected');
+    const markerSelectedNew = e.target._icon;
+    if (markerSelectedOld == markerSelectedNew) {
+        defaultSidePanel();
     // unselected marker clicked
     } else {
-        // record series selected before police report displayed
+        // record series selected before report displayed
         var seriesValChange = $( 'iframe' ).contents().find('#seriesSelect').val();
         // seriesValChange is false if click on another shooting after previously clicking on shooting
         if (seriesValChange) {
@@ -336,14 +356,12 @@ function onClick() {
                 if (dataYearly[year][i].LAT == lat && dataYearly[year][i].LONG == long) {
                     // populate report with html corresponding to icon clicked
                     $( '#report' ).html(dataYearly[year][i].HTML);
-                    // change color of marker clicked on to black
-                    markerSelected.clearLayers();
-                    L.marker([dataYearly[year][i].LAT,dataYearly[year][i].LONG],{icon: gunIconSelected})
-                        .on("click",onClick)
-                        .addTo(markerSelected);
-                    markerSelected.addTo(map);
+                    // unselect previously selected marker
+                    unselectMarker();
+                    // select marker clicked on
+                    markerSelectedNew.classList.add('marker-selected');
                     break;
-                };
+                };    
             };    
         // custom date range
         // loop through data backwards chronologically
@@ -356,11 +374,10 @@ function onClick() {
                 d.DATE = adjustTimeZone(new Date(d.DATE));
                 if (d.LAT == lat && d.LONG == long && d.DATE >= fromDateRange && d.DATE <= toDateRange) {
                     $( '#report' ).html(d.HTML);
-                    markerSelected.clearLayers();
-                    L.marker([d.LAT,d.LONG],{icon: gunIconSelected})
-                        .on("click",onClick)
-                        .addTo(markerSelected);
-                    markerSelected.addTo(map);
+                    // unselect previously selected marker
+                    unselectMarker();
+                    // select marker clicked on
+                    markerSelectedNew.classList.add('marker-selected');
                     if (flag == 0) {
                         flag++
                     }
@@ -373,14 +390,14 @@ function onClick() {
     }
 };
 
-/////////////////////////////////////////////////
-/// SWITCH BETWEEN POLICE REPORT AND DEFAULT ////
-/////////////////////////////////////////////////
+//////////////////////////////////////////
+/// SWITCH BETWEEN REPORT AND DEFAULT ////
+//////////////////////////////////////////
 
 // switching between police report and default html
 // txt variable assigned in barChart()
 var flagMarkerSelected = false;
-function defaultReport() {
+function defaultSidePanel() {
     markerSelected.clearLayers();
     if (flagMarkerSelected) {
         const seriesValReport = seriesVal;
@@ -391,9 +408,10 @@ function defaultReport() {
         $( 'iframe' ).on('load', function () {
             $( 'iframe' ).contents().find('#seriesSelect').remove().val(seriesValReport);
         });
+        $( '.marker-selected' ).removeClass('marker-selected')
     }
 };
-map.on('click', defaultReport);
+map.on('click', defaultSidePanel);
 
 ///////////////////////////////////////////////
 /// ADJUST HEIGHT OF MAP AND REPORT SECTION ///
