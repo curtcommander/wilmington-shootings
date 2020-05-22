@@ -213,11 +213,11 @@ else:
     
     # write data to zip files
     with ZipFile(path_data + 'incidentDataCurrent.zip', 'w', ZIP_DEFLATED) as zip:
-        with open(path_data + 'incidentDataCurrent.csv' , 'r') as f:
+        with open(path_data + 'incidentDataCurrent.csv' , 'r', encoding='utf-8') as f:
             zip.writestr('incidentDataCurrent.csv', f.read())
         
     with ZipFile(path_data + 'incidentDataPrevious.zip', 'w', ZIP_DEFLATED) as zip:
-        with open(path_data + 'incidentDataPrevious.csv' , 'r') as f:
+        with open(path_data + 'incidentDataPrevious.csv' , 'r', encoding='utf-8') as f:
             zip.writestr('incidentDataPrevious.csv', f.read())
     
     # print number of new incidents added to data files

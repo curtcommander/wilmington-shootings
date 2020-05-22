@@ -23,7 +23,9 @@ def parse_date(date_string):
     if len(day) == 1:
         day = '0'+day
     
-    return [year, year+'-'+month+'-'+day]
+    # year must be int for comparison with old data
+    # (years in old data are imported as numbers)
+    return [int(year), year+'-'+month+'-'+day]
 
 # dictionary to translate month name to number 
 month_name_to_number = {
