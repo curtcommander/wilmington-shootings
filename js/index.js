@@ -36,10 +36,6 @@ window.onload = function() {
 /// ICONS ///
 /////////////
 
-/////////////
-/// ICONS ///
-/////////////
-
 // icon size
 function getIconSize() {
     var vmin;
@@ -64,7 +60,7 @@ const svgTemplate = L.Util.template(' \
 </svg>');
 const icon = L.divIcon({
       className: "leaflet-data-marker",
-      html: svgTemplate,
+      html: svgTemplate
 })
 
 // adjust icon sizes
@@ -128,6 +124,7 @@ fetch('data/incidentDataCurrent.zip').then(function (response) {
             .addTo(markers)};
         markers.addTo(map);
         })
+        resizeIcons();
     })
 }).then(function () {
     // load rest of data into dataChron and dataYearly objects
