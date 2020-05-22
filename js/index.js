@@ -352,7 +352,7 @@ function onClick(e) {
             for (i = 0; i < dataYearly[year].length; i++) {
                 if (dataYearly[year][i].LAT == lat && dataYearly[year][i].LONG == long) {
                     // populate report with html corresponding to icon clicked
-                    $( '#report' ).html(dataYearly[year][i].HTML);
+                    $( '#sidePanel' ).html(dataYearly[year][i].HTML);
                     // unselect previously selected marker
                     unselectMarker();
                     // select marker clicked on
@@ -370,7 +370,7 @@ function onClick(e) {
                 let d = dataChron[i];
                 d.DATE = adjustTimeZone(new Date(d.DATE));
                 if (d.LAT == lat && d.LONG == long && d.DATE >= fromDateRange && d.DATE <= toDateRange) {
-                    $( '#report' ).html(d.HTML);
+                    $( '#sidePanel' ).html(d.HTML);
                     // unselect previously selected marker
                     unselectMarker();
                     // select marker clicked on
@@ -398,7 +398,7 @@ function defaultSidePanel() {
     markerSelected.clearLayers();
     if (flagMarkerSelected) {
         const seriesValReport = seriesVal;
-        $( '#report' ).html(txt);
+        $( '#sidePanel' ).html(txt);
         adjustIframe();
         changeYearClickChart();
         flagMarkerSelected = false;
@@ -418,11 +418,11 @@ map.on('click', defaultSidePanel);
 function adjustHeight() {
     if ($( window ).outerWidth(true) <= 800) {  
         $( '#map' ).css('height', '45vh');
-        $( '#report' ).css('height', $( window ).height() - $( '#top' ).height() - $( '#map' ).height());
+        $( '#sidePanel' ).css('height', $( window ).height() - $( '#top' ).height() - $( '#map' ).height());
     } else {
         $( '#map' ).height($( window ).height() - $( '#top' ).height());
-        $( '#report' ).height($( window ).height() - $( '#top' ).height() 
-            - parseInt($( '#report' ).css('padding-bottom'))
+        $( '#sidePanel' ).height($( window ).height() - $( '#top' ).height() 
+            - parseInt($( '#sidePanel' ).css('padding-bottom'))
         );
     }
 };
@@ -434,7 +434,7 @@ $( window ).resize(adjustHeight);
 //////////////////
 
 // barChart also contains css formatting for date selectmenus
-txt = $( '#report' ).html();
+txt = $( '#sidePanel' ).html();
 iframeHTML = "<iframe src='barChart.html' id='chart'></iframe>";
 txtNoIframe = txt.replace(iframeHTML, '');
 function barChart() {
@@ -452,10 +452,10 @@ function barChart() {
                 'border-top': '1.5vmin solid gray'
             })
         }
-        $( '#report iframe' ).remove();
+        $( '#sidePanel iframe' ).remove();
         txt = txtNoIframe;
     // bar chart displayed if window width > 800px
-    } else if ($( '#report iframe').length == 0) {
+    } else if ($( '#sidePanel iframe').length == 0) {
         if (dateType != 'custom') {
             $( '#date-container' ).css({
                 'padding-bottom': '.85vmin'
@@ -468,8 +468,8 @@ function barChart() {
             })
         }
         //insert iframe
-        if ($( '#report p' ).length == 3) {
-            $( '#report' ).append(iframeHTML)
+        if ($( '#sidePanel p' ).length == 3) {
+            $( '#sidePanel' ).append(iframeHTML)
         }
         txt = txtNoIframe + iframeHTML;
         // change year by clicking on chart
@@ -530,7 +530,7 @@ function barChart() {
         window.adjustIframe = function() {
             var iframe = $( 'iframe' );
             iframe.css('transform', 
-                'translate(0,'+ (($( window ).height() - $( '#top' ).height() - vh(50))/2 - 2*$( '#report p' ).outerHeight()) + 'px)');
+                'translate(0,'+ (($( window ).height() - $( '#top' ).height() - vh(50))/2 - 2*$( '#sidePanel p' ).outerHeight()) + 'px)');
         };
         $(adjustIframe);
         $( window ).resize(adjustIframe);

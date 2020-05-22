@@ -1,54 +1,68 @@
 <!doctype html>
 <html>
 <head>
-    <title>Wilmginton Shootings</title>
+    <title>Wilmington Shootings</title>
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content ="width=device-width, initial-scale = 1">
     <link rel="icon" href ="gunIcon.png">
-    <!--css-->
-    <link rel="stylesheet" href="css/styles.min.css" type='text/css'>
-    <!--fonts-->
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed" rel="stylesheet">
-    <!--leaflet.css-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css">
-    <!--leaflet.js-->
-    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <!--leaflet-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+    <!--D3-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--JSZip-->
+    <script src="js/jszip.min.js"></script>
+
     <!--jQuery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <!--IE Compatability-->
-    <script src="https://cdn.jsdelivr.net/bluebird/3.5.0/bluebird.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
     <!--jQuery UI-->
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
-    <!--JSZip-->
-    <script src="js/jszip.min.js"></script>
-    <!--D3-->
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!--IE Compatability-->
+    <script src="https://cdn.jsdelivr.net/bluebird/3.5.0/bluebird.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+
+    <!--css-->
+    <link rel="stylesheet" href="css/index.min.css" type='text/css'>
+    <!--js-->
+    <script src="js/index.min.js" defer></script>
+    <script src ="js/include.min.js" defer></script>
 </head>
 <body>
     <div id="top">
         <h1>Shootings in Wilminton, DE</h1>
-        <div id='input-container'>
-            <div id="date-container" class="top-container">
-                <select id="date-type">
-                    <option value="year">Year</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <select id='date-val'><option value="2011">2011</option><option value="2012">2012</option><option value="2013">2013</option><option value="2014">2014</option><option value="2015">2015</option><option value="2016">2016</option><option value="2017">2017</option><option value="2018">2018</option><option value="2019">2019</option><option value="2020" selected="selected">2020</option></select> 
-            </div>
+        <div id="date-container">
+            <select id="date-type">
+                <option value="year">Year</option>
+                <option value="custom">Custom</option>
+            </select>
+            <select id="date-val">
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020" selected="selected">2020</option>
+            </select>
         </div>
     </div>
-    <div id="main-container">
+    <div id="main">
         <div id="map"></div>
-        <div id='report'>
-            <p>Click on a shooting for <a href="https://data.delawareonline.com/webapps/crime/" target="_blank">Wilmington Shootings</a> report</p>
-            <p>App developed by <a href="https://www.linkedin.com/in/curtcommander" target="_blank">Curt Commander</a></p>
+        <div id="sidePanel">
+            <p>Click on a shooting for <a href="https://data.delawareonline.com/webapps/crime/">Wilmington Shootings</a> report</p>
+            <p>App developed by <a href="https://www.linkedin.com/in/curtcommander">Curt Commander</a></p>
             <p>Data updated daily</p>
         </div>
     </div>
-    <script src="js/index.min.js"></script>
-    <script src ="js/include.min.js"></script>
 </body>
 </html>
