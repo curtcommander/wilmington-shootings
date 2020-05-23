@@ -116,8 +116,8 @@ select::-ms-expand {
     fill: var(--color-selected);
 }
 
-/*shootings sidePanels*/
-#sidePanel {
+/*shootings side-panels*/
+#side-panel {
     width: 100%;
     float: left;
     padding: 0 10px 10px 10px;
@@ -153,7 +153,7 @@ hr {
     margin-top: 5px;
 }
 
-#sidePanel td {
+#side-panel td {
     text-align: center;
     padding: 0 10px;
     width: 50% !important;
@@ -164,13 +164,13 @@ table {
     width: 100% !important;
 }
 
-#sidePanel>p {
+#side-panel>p {
     margin: 0;
     text-align: center;
     font-size: 4vmin;
 }
 
-#sidePanel>p:first-child {
+#side-panel>p:first-child {
     margin: 10px 0 0;
 }
 
@@ -206,7 +206,7 @@ table {
         height: 100%;
     }
 
-    #sidePanel {
+    #side-panel {
         width: 35%;
         height: 100%;
     }
@@ -227,7 +227,7 @@ table {
         font-size: 12px !important;
     }
 
-    #sidePanel>p {
+    #side-panel>p {
         font-size: 1.3vw;
     }
 

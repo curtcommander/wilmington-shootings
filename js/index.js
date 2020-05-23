@@ -115,6 +115,7 @@ fetch('data/incidentDataCurrent.zip').then(function (response) {
         // write into dataChron
         dataChron = data;
         for (i = 0; i < dataChron.length; i++) {
+            delete dataChron[i].YEAR;
             let d = dataChron[i];
             // write into dataYearly
             dataYearly[yearCurrent].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
@@ -148,13 +149,6 @@ fetch('data/incidentDataCurrent.zip').then(function (response) {
             })
         })
     })
-})
-
-// remove year property from dataChron
-$( window ).on('load', function () {
-    for (i=0; i<dataChron.length; i++) {
-       delete dataChron[i].YEAR;
-    }
 })
 
 /////////////////
@@ -352,7 +346,7 @@ function onClick(e) {
             for (i = 0; i < dataYearly[year].length; i++) {
                 if (dataYearly[year][i].LAT == lat && dataYearly[year][i].LONG == long) {
                     // populate report with html corresponding to icon clicked
-                    $( '#sidePanel' ).html(dataYearly[year][i].HTML);
+                    $( '#side-panel' ).html(dataYearly[year][i].HTML);
                     // unselect previously selected marker
                     unselectMarker();
                     // select marker clicked on
@@ -370,7 +364,7 @@ function onClick(e) {
                 let d = dataChron[i];
                 d.DATE = adjustTimeZone(new Date(d.DATE));
                 if (d.LAT == lat && d.LONG == long && d.DATE >= fromDateRange && d.DATE <= toDateRange) {
-                    $( '#sidePanel' ).html(d.HTML);
+                    $( '#side-panel' ).html(d.HTML);
                     // unselect previously selected marker
                     unselectMarker();
                     // select marker clicked on
@@ -398,7 +392,7 @@ function defaultSidePanel() {
     markerSelected.clearLayers();
     if (flagMarkerSelected) {
         const seriesValReport = seriesVal;
-        $( '#sidePanel' ).html(txt);
+        $( '#side-panel' ).html(txt);
         adjustIframe();
         changeYearClickChart();
         flagMarkerSelected = false;
@@ -418,11 +412,11 @@ map.on('click', defaultSidePanel);
 function adjustHeight() {
     if ($( window ).outerWidth(true) <= 800) {  
         $( '#map' ).css('height', '45vh');
-        $( '#sidePanel' ).css('height', $( window ).height() - $( '#top' ).height() - $( '#map' ).height());
+        $( '#side-panel' ).css('height', $( window ).height() - $( '#top' ).height() - $( '#map' ).height());
     } else {
         $( '#map' ).height($( window ).height() - $( '#top' ).height());
-        $( '#sidePanel' ).height($( window ).height() - $( '#top' ).height() 
-            - parseInt($( '#sidePanel' ).css('padding-bottom'))
+        $( '#side-panel' ).height($( window ).height() - $( '#top' ).height() 
+            - parseInt($( '#side-panel' ).css('padding-bottom'))
         );
     }
 };
@@ -433,8 +427,29 @@ $( window ).resize(adjustHeight);
 /// BAR CHART ////
 //////////////////
 
+adjustIframe = function() {
+    var iframe = $( 'iframe' );
+    iframe.css('transform', 
+        'translate(0,'+ (($( window ).height() - $( '#top' ).height() - vh(50))/2 - 2*$( '#side-panel p' ).outerHeight()) + 'px)');
+};
+
+changeYearClickChart = function() {
+    $( 'iframe' ).on('load', function () {
+        changeYearListener();
+        //listener for when seriesSelected changes
+        $('iframe').contents().find('ul').on('click', function () {
+            changeYearListener();
+        })
+    })
+};
+
+vh = function(v) {
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    return (v * h) / 100;
+}
+
 // barChart also contains css formatting for date selectmenus
-txt = $( '#sidePanel' ).html();
+txt = $( '#side-panel' ).html();
 iframeHTML = "<iframe src='barChart.html' id='chart'></iframe>";
 txtNoIframe = txt.replace(iframeHTML, '');
 function barChart() {
@@ -452,10 +467,10 @@ function barChart() {
                 'border-top': '1.5vmin solid gray'
             })
         }
-        $( '#sidePanel iframe' ).remove();
+        $( '#side-panel iframe' ).remove();
         txt = txtNoIframe;
     // bar chart displayed if window width > 800px
-    } else if ($( '#sidePanel iframe').length == 0) {
+    } else if ($( '#side-panel iframe').length == 0) {
         if (dateType != 'custom') {
             $( '#date-container' ).css({
                 'padding-bottom': '.85vmin'
@@ -468,8 +483,8 @@ function barChart() {
             })
         }
         //insert iframe
-        if ($( '#sidePanel p' ).length == 3) {
-            $( '#sidePanel' ).append(iframeHTML)
+        if ($( '#side-panel p' ).length == 3) {
+            $( '#side-panel' ).append(iframeHTML)
         }
         txt = txtNoIframe + iframeHTML;
         // change year by clicking on chart
@@ -506,15 +521,6 @@ function barChart() {
             }
         };
 
-        window.changeYearClickChart = function() {
-            $( 'iframe' ).on('load', function () {
-                changeYearListener();
-                //listener for when seriesSelected changes
-                $('iframe').contents().find('ul').on('click', function () {
-                    changeYearListener();
-                })
-            })
-        };
         changeYearClickChart();
         
         ///////////////////
@@ -522,16 +528,7 @@ function barChart() {
         ///////////////////
 
         // adjust location of iframe
-        window.vh = function(v) {
-            var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-            return (v * h) / 100;
-        }
 
-        window.adjustIframe = function() {
-            var iframe = $( 'iframe' );
-            iframe.css('transform', 
-                'translate(0,'+ (($( window ).height() - $( '#top' ).height() - vh(50))/2 - 2*$( '#sidePanel p' ).outerHeight()) + 'px)');
-        };
         $(adjustIframe);
         $( window ).resize(adjustIframe);
 
