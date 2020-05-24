@@ -1,7 +1,52 @@
-// set seriesVal
+//////////////////
+/// DIMENSIONS ///
+//////////////////
+
+// vh calculates number of pixels for given percent of vertical height
+// input (v) is the percent number (e.g. 50% would be a value of 50)
+function vh(v) {
+    const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    return (v * h) / 100;
+}
+const margin = {top: vh(3), right: vh(3), bottom: vh(3), left: vh(3)};
+
+var verticalSpace = $( window).height() - parseInt($( '#container-bar-chart' ).css('padding-top')) 
+                    - parseInt($( '#container-bar-chart' ).css('padding-bottom')) - 20;
+
+var width = $( '#svg-main' ).width() - margin.left - margin.right,
+    height = $( '#svg-main' ).height() - margin.top - margin.bottom;
+                
+var svg = d3.select('#svg-main')
+    .attr('display', 'block')
+    .style('height', verticalSpace - $( '#container-#select-series' ).height() - margin.bottom);
+    
+var container = svg.append('g')
+    .attr('class', 'containerSVG')
+    .attr("transform", "translate(" + margin.left + "," + margin.top*-1 + ")");
+
+// adjust location of container within body (centered vertically)
+$( '#container-bar-chart' ).css('transform', 'translate(0,'+(($( 'body' ).height() - $( '#container-bar-chart').outerHeight())/2)+'px');
+
+/////////////////////
+/// SERIES CHANGE ///
+/////////////////////
+
+// handler for series change, function definitions below
+function handlerChangeSeries() {
+    setSeriesVal();
+    plot(data);
+    addLabels(dataset);
+    hoverHandler();
+    legendTxt();
+};
+$('#select-series').selectmenu({
+    change: handlerChangeSeries
+});
+
+// set seriesVal (used in index.html)
 seriesArray = ['Incidents', 'Victims', 'Incidents YTD', 'Victims YTD'];
 function setSeriesVal() {
-    seriesSelected = $('.ui-selectmenu-text').html();
+    seriesSelected = document.getElementsByClassName('ui-selectmenu-text')[0].innerHTML
     for (i in seriesArray) {
         if (seriesArray[i] == seriesSelected) {
             parent.seriesVal = i;
@@ -9,21 +54,6 @@ function setSeriesVal() {
         }
     }    
 };
-
-// changeSeries
-function changeSeries() {
-    setSeriesVal();
-    plot(data);
-    addLabels(dataset);
-    hoverHandler();
-    legendTxt();
-};
-
-// select menu
-$('#select-series').selectmenu({
-    change: changeSeries
-});
-$( '.ui-icon' ).remove();
 
 // modify figure.html (selected attribute)
 $( 'select option' ).each(function (index) {
@@ -33,36 +63,9 @@ $( 'select option' ).each(function (index) {
     }
 })
 
-// dimensions
-function vh(v) {
-    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-    return (v * h) / 100;
-}
-
-var margin = {top: vh(3), right: vh(3), bottom: vh(3), left: vh(3)};
-
-var legend = d3.select('#svg-legend')
-    .attr('display', 'block')    
-    .style('width', $( window ).width()-1)
-    .style('height', '20px');
-
-var verticalSpace = $( window).height() - parseInt($( '#container-bar-chart' ).css('padding-top')) 
-                    - parseInt($( '#container-bar-chart' ).css('padding-bottom')) - 20;
-
-var svg = d3.select('#svg-main')
-    .attr('display', 'block')    
-    .style('width', $( window ).width()-1)
-    .style('height', verticalSpace - $( '#container-#select-series' ).height() - margin.bottom);
-
-var width = $( '#svg-main' ).width() - margin.left - margin.right,
-    height = $( '#svg-main' ).height() - margin.top - margin.bottom;
-    
-var container = svg.append('g')
-    .attr('class', 'containerSVG')
-    .attr("transform", "translate(" + margin.left + "," + margin.top*-1 + ")");
-
-//adjust location of container within body (centered vertically)
-$( '#container-bar-chart' ).css('transform', 'translate(0,'+(($( 'body' ).height() - $( '#container-bar-chart').outerHeight())/2)+'px');
+/////////////////
+/// Bar Chart ///
+/////////////////
 
 // y scale
 yMaxTotal=217;
@@ -81,7 +84,7 @@ var yAxis = container.append('g')
     
 // x scale
 years = [];
-yearCurrent=2020;
+yearCurrent = 2020;
 y = 2011;
 while (y <= yearCurrent) {
     years.push(y)
@@ -135,6 +138,7 @@ function plot(data) {
                 .attr('height', function(d) {return height - yScale(d[1]-d[0]) })
                 .attr('y', function(d) {return yScale(d[1]-d[0]) + margin.top - margin.bottom})
 }
+
 // labels
 function addLabels(dataset) {
     seriesNum = Number(parent.seriesVal);
@@ -231,7 +235,9 @@ d3.csv('data/yearlyData.csv')
 });
 
 // legend
+var legend = d3.select('#svg-legend')
 scalar = $( '#svg-main' ).height()*18/544+5;
+$('#svg-legend').height(scalar);
 margin.legend = vh(3);
 halfWidth = $( '#svg-main' ).width()/2;
 
