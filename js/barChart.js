@@ -20,16 +20,16 @@ function changeSeries() {
 };
 
 // select menu
-$('#seriesSelect').selectmenu({
+$('#select-series').selectmenu({
     change: changeSeries
 });
 $( '.ui-icon' ).remove();
 
 // modify figure.html (selected attribute)
-$( '#seriesSelect option' ).each(function (index) {
+$( 'select option' ).each(function (index) {
     if (index == parent.seriesVal) {
-        $( '#seriesSelect' ).val(index);
-        $( '#seriesSelect' ).selectmenu('refresh');
+        $( '#select-series' ).val(index);
+        $( '#select-series' ).selectmenu('refresh');
     }
 })
 
@@ -41,28 +41,28 @@ function vh(v) {
 
 var margin = {top: vh(3), right: vh(3), bottom: vh(3), left: vh(3)};
 
-var legend = d3.select('#legendSVG')
+var legend = d3.select('#svg-legend')
     .attr('display', 'block')    
     .style('width', $( window ).width()-1)
     .style('height', '20px');
 
-var verticalSpace = $( window).height() - parseInt($( '#container' ).css('padding-top')) 
-                    - parseInt($( '#container' ).css('padding-bottom')) - 20;
+var verticalSpace = $( window).height() - parseInt($( '#container-bar-chart' ).css('padding-top')) 
+                    - parseInt($( '#container-bar-chart' ).css('padding-bottom')) - 20;
 
-var svg = d3.select('#mainSVG')
+var svg = d3.select('#svg-main')
     .attr('display', 'block')    
     .style('width', $( window ).width()-1)
-    .style('height', verticalSpace - $( '#containerSelect' ).height() - margin.bottom);
+    .style('height', verticalSpace - $( '#container-#select-series' ).height() - margin.bottom);
 
-var width = $( '#mainSVG' ).width() - margin.left - margin.right,
-    height = $( '#mainSVG' ).height() - margin.top - margin.bottom;
+var width = $( '#svg-main' ).width() - margin.left - margin.right,
+    height = $( '#svg-main' ).height() - margin.top - margin.bottom;
     
 var container = svg.append('g')
     .attr('class', 'containerSVG')
     .attr("transform", "translate(" + margin.left + "," + margin.top*-1 + ")");
 
 //adjust location of container within body (centered vertically)
-$( '#container' ).css('transform', 'translate(0,'+(($( 'body' ).height() - $( '#container').outerHeight())/2)+'px');
+$( '#container-bar-chart' ).css('transform', 'translate(0,'+(($( 'body' ).height() - $( '#container-bar-chart').outerHeight())/2)+'px');
 
 // y scale
 yMaxTotal=217;
@@ -178,7 +178,7 @@ function addLabels(dataset) {
 $(function firefox () {
     if (navigator.userAgent.indexOf("Firefox") != -1) {
         function adjustFirefox () { 
-           $( 'select' ).css({
+           $( '#select-series' ).css({
                'color' : 'transparent',
                'text-shadow' : '0 0 0 #000'
            })
@@ -231,9 +231,9 @@ d3.csv('data/yearlyData.csv')
 });
 
 // legend
-scalar = $( '#mainSVG' ).height()*18/544+5;
+scalar = $( '#svg-main' ).height()*18/544+5;
 margin.legend = vh(3);
-halfWidth = $( '#mainSVG' ).width()/2;
+halfWidth = $( '#svg-main' ).width()/2;
 
 function getTextWidth(text, font) {
     var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));

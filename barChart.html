@@ -4,8 +4,6 @@
     <title>Wilmginton Shootings</title>
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content ="width=device-width, initial-scale = 1">
-    <!--css-->
-    <link rel="stylesheet" href="css/barChart.min.css" type='text/css'>
     <!--fonts-->
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed" rel="stylesheet">
@@ -19,20 +17,23 @@
     <!--jQuery UI-->
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <!--css-->
+    <link rel="stylesheet" href="css/barChart.min.css" type='text/css'>
+    <!--js-->
+    <script src="js/barChart.min.js" defer></script>
 </head>
 <body>
-<div id='container'>
-        <div id='containerSelect'>
-            <select id='seriesSelect'>
-                    <option value="0">Incidents</option>
-                    <option value="1">Victims</option>
-                    <option value="2">Incidents YTD</option>
-                    <option value="3">Victims YTD</option>
+    <div id="container-bar-chart">
+        <div id="container-select-series">
+            <select id="select-series">
+                <option value="0">Incidents</option>
+                <option value="1">Victims</option>
+                <option value="2">Incidents YTD</option>
+                <option value="3">Victims YTD</option>
             </select>
-        </div>        
-    <svg id='mainSVG'></svg>
-    <svg id='legendSVG'></svg>
-    <script src="js/barChart.min.js"></script>    
-</div>
+        </div>
+        <svg id="svg-main"></svg>
+        <svg id="svg-legend"></svg>    
+    </div>
 </body>
 </html>

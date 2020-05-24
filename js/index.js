@@ -16,16 +16,11 @@ const map = L.map('map')
 L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}', {
     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>\n\
                  <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>',
-	subdomains: 'abcd',
 	minZoom: 13,
 	maxZoom: 18,
 	ext: 'png'
 })
 .addTo(map);
-
-// iniatialize layers
-var markers = L.layerGroup();
-var markerSelected = L.layerGroup();
 
 // ensure map loads properly
 window.onload = function() {
@@ -87,6 +82,10 @@ map.on('resize', resizeIcons)
 // dataChron for custom date ranges
 
 // initialize objects to put data into, populate select options
+
+var markers = L.layerGroup();
+var markerSelected = L.layerGroup();
+
 var dataChron, yearCurrent, year;
 var dataYearly = {};
 var yearAll = 2011;
@@ -189,7 +188,7 @@ function changeDateType (){
         // remove year selectmenu
         $( '#date-val' ).remove();
         // add custom date ribbon
-        $( '#date-container' ).append(
+        $( '#container-date' ).append(
             '<div id="date-range">' +   
             '<input type="text" id="date-val-from" class="custom-date"/>'+
             '<span>&nbsp;-&nbsp;</span>' + 
@@ -202,7 +201,7 @@ function changeDateType (){
             'background-color' : 'lightgray',
             'border-top' : l+'vmin solid gray'
         });
-        $( '#date-container' ).css({
+        $( '#container-date' ).css({
             'padding-bottom' : '0'
         });
 
@@ -217,7 +216,7 @@ function changeDateType (){
         // remove custom date ribbon
         $( '#date-range' ).remove();
         // add year selectmenu
-        $( '#date-container' ).append('<select id="date-val"></select>');
+        $( '#container-date' ).append('<select id="date-val"></select>');
         var yearAll = 2011;
         while (yearAll <= yearCurrent) {
             if (yearAll == year) {
@@ -231,7 +230,7 @@ function changeDateType (){
             change: changeYear
         })
         $( '.ui-icon' ).remove();
-        $( '#date-container' ).css({
+        $( '#container-date' ).css({
             'padding-bottom' : l+'vmin'
         });
         markers.clearLayers();
@@ -332,7 +331,7 @@ function onClick(e) {
     // unselected marker clicked
     } else {
         // record series selected before report displayed
-        var seriesValChange = $( 'iframe' ).contents().find('#seriesSelect').val();
+        var seriesValChange = $( 'iframe' ).contents().find('series').val();
         // seriesValChange is false if click on another shooting after previously clicking on shooting
         if (seriesValChange) {
             seriesVal = seriesValChange;
@@ -397,7 +396,7 @@ function defaultSidePanel() {
         changeYearClickChart();
         flagMarkerSelected = false;
         $( 'iframe' ).on('load', function () {
-            $( 'iframe' ).contents().find('#seriesSelect').remove().val(seriesValReport);
+            $( 'iframe' ).contents().find('series').remove().val(seriesValReport);
         });
         $( '.marker-selected' ).removeClass('marker-selected')
     }
@@ -457,7 +456,7 @@ function barChart() {
     // bar chart removed if window width <= 800px
     if ($( window ).width() <= 800) {
         if (dateType != 'custom') {
-            $( '#date-container' ).css({
+            $( '#container-date' ).css({
                 'padding-bottom': '1.5vmin'
             })
         } else {
@@ -472,7 +471,7 @@ function barChart() {
     // bar chart displayed if window width > 800px
     } else if ($( '#side-panel iframe').length == 0) {
         if (dateType != 'custom') {
-            $( '#date-container' ).css({
+            $( '#container-date' ).css({
                 'padding-bottom': '.85vmin'
             })
         } else {
