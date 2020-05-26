@@ -14,5 +14,5 @@ App is live at [curtcommander.com/WilmingtonShootings/](https://curtcommander.co
 
 ## Built with
 
- - Front End: HTML, CSS, JavaScript
+ - Front End: HTML, CSS, JavaScript (D3, Leaflet)
  - Back End: Python
