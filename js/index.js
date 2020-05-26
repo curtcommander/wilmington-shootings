@@ -238,9 +238,9 @@ function changeDateType (){
         plotYearly();
     }
     adjustHeight();
-    // adjustIframe only defined for large screens, will error out on mobile otherwise
+    // adjustIframePosition only defined for large screens, will error out on mobile otherwise
     if ($( window ).width() > 800) {
-        adjustIframe();
+        adjustIframePosition();
     }
     resizeIcons();
 }
@@ -344,8 +344,10 @@ function onClick(e) {
         if (dateType != 'custom') {  
             for (i = 0; i < dataYearly[year].length; i++) {
                 if (dataYearly[year][i].LAT == lat && dataYearly[year][i].LONG == long) {
-                    // populate report with html corresponding to icon clicked
-                    $( '#side-panel' ).html(dataYearly[year][i].HTML);
+                    // stop displaying default report
+                    $('#side-panel-default').css('display', 'none');
+                    // display report
+                    $('#side-panel').append(dataYearly[year][i].HTML)
                     // unselect previously selected marker
                     unselectMarker();
                     // select marker clicked on
@@ -363,7 +365,10 @@ function onClick(e) {
                 let d = dataChron[i];
                 d.DATE = adjustTimeZone(new Date(d.DATE));
                 if (d.LAT == lat && d.LONG == long && d.DATE >= fromDateRange && d.DATE <= toDateRange) {
-                    $( '#side-panel' ).html(d.HTML);
+                    // stop displaying default report
+                    $('#side-panel-default').css('display', 'none');
+                    // display report
+                    $('#side-panel').append(d.HTML)
                     // unselect previously selected marker
                     unselectMarker();
                     // select marker clicked on
@@ -390,14 +395,11 @@ var flagMarkerSelected = false;
 function defaultSidePanel() {
     markerSelected.clearLayers();
     if (flagMarkerSelected) {
-        const seriesValReport = seriesVal;
-        $( '#side-panel' ).html(txt);
-        adjustIframe();
+        $('#side-panel-default').css('display', 'unset');
+        $('.incident').remove()
+        adjustIframePosition();
         changeYearClickChart();
         flagMarkerSelected = false;
-        $( 'iframe' ).on('load', function () {
-            $( 'iframe' ).contents().find('series').remove().val(seriesValReport);
-        });
         $( '.marker-selected' ).removeClass('marker-selected')
     }
 };
@@ -426,31 +428,43 @@ $( window ).resize(adjustHeight);
 /// BAR CHART ////
 //////////////////
 
-adjustIframe = function() {
-    var iframe = $( 'iframe' );
-    iframe.css('transform', 
+vh = function(v) {
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    return (v * h) / 100;
+}
+
+function adjustIframePosition() {
+    $( 'iframe' ).css('transform', 
         'translate(0,'+ (($( window ).height() - $( '#top' ).height() - vh(50))/2 - 2*$( '#side-panel p' ).outerHeight()) + 'px)');
 };
+$(adjustIframePosition);
+
+function toggleBarChart() {
+    // remove iframe if window <= 800px
+    if ($( window ).width() <= 800) {
+        $('iframe').css('display', 'none');
+    // insert iframe if window > 800px and default side panel being displayed
+    } else if (!flagMarkerSelected) {
+        $( 'iframe' ).css('display', 'unset');
+    }
+}
+
+window.onresize = function() {
+    adjustIframePosition();
+    toggleBarChart();
+}
 
 changeYearClickChart = function() {
     $( 'iframe' ).on('load', function () {
         changeYearListener();
-        //listener for when seriesSelected changes
+        // listener for when seriesSelected changes
         $('iframe').contents().find('ul').on('click', function () {
             changeYearListener();
         })
     })
 };
 
-vh = function(v) {
-    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-    return (v * h) / 100;
-}
-
 // barChart also contains css formatting for date selectmenus
-txt = $( '#side-panel' ).html();
-iframeHTML = "<iframe src='barChart.html' id='chart'></iframe>";
-txtNoIframe = txt.replace(iframeHTML, '');
 function barChart() {
     var dateType = $( '#date-type' ).val();
     // bar chart removed if window width <= 800px
@@ -466,8 +480,6 @@ function barChart() {
                 'border-top': '1.5vmin solid gray'
             })
         }
-        $( '#side-panel iframe' ).remove();
-        txt = txtNoIframe;
     // bar chart displayed if window width > 800px
     } else if ($( '#side-panel iframe').length == 0) {
         if (dateType != 'custom') {
@@ -481,11 +493,6 @@ function barChart() {
                 'border-top': '0.85vmin solid gray'
             })
         }
-        //insert iframe
-        if ($( '#side-panel p' ).length == 3) {
-            $( '#side-panel' ).append(iframeHTML)
-        }
-        txt = txtNoIframe + iframeHTML;
         // change year by clicking on chart
         // setTimeouts used to fix load issues with IE
         window.changeYearListener = function() {
@@ -521,21 +528,6 @@ function barChart() {
         };
 
         changeYearClickChart();
-        
-        ///////////////////
-        /// ADJUSTMENTS ///
-        ///////////////////
-
-        // adjust location of iframe
-
-        $(adjustIframe);
-        $( window ).resize(adjustIframe);
-
-        // resize bar chart when window size changes
-        $( window ).resize( function() {
-            $( 'iframe' ).attr('src', 'barChart.html');  
-        });
     }
 }
 barChart();
-$( window ).resize(barChart);

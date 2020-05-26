@@ -164,13 +164,13 @@ table {
     width: 100% !important;
 }
 
-#side-panel>p {
+#side-panel-default>p {
     margin: 0;
     text-align: center;
     font-size: 4vmin;
 }
 
-#side-panel>p:first-child {
+#side-panel-default>p:first-child {
     margin: 10px 0 0;
 }
 
@@ -202,33 +202,30 @@ table {
     }
 
     #map {
-        width: 65%;
+        width: calc(100% - 400px);
         height: 100%;
     }
 
     #side-panel {
-        width: 35%;
+        width: 400px;
         height: 100%;
     }
 
     iframe {
-        width: 33%;
+        width: 380px;
         height: 50vh;
         overflow: hidden;
-        border-top: gray solid 2px;
-        border-bottom: gray solid 2px;
-        border-left: none;
-        border-right: none;
         position: absolute;
+        border: none;
         background-color: white;
     }
 
     .leaflet-control-attribution {
-        font-size: 12px !important;
+        font-size: 11px !important;
     }
 
-    #side-panel>p {
-        font-size: 1.3vw;
+    #side-panel-default>p {
+        font-size: 15px;
     }
 
     h1 {

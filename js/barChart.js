@@ -10,18 +10,22 @@ function vh(v) {
 }
 const margin = {top: vh(3), right: vh(3), bottom: vh(3), left: vh(3)};
 
-var verticalSpace = $( window).height() - parseInt($( '#container-bar-chart' ).css('padding-top')) 
-                    - parseInt($( '#container-bar-chart' ).css('padding-bottom')) - 20;
-
 var width = $( '#svg-main' ).width() - margin.left - margin.right,
     height = $( '#svg-main' ).height() - margin.top - margin.bottom;
-                
-var svg = d3.select('#svg-main')
-    .attr('display', 'block')
+
+const verticalSpace = $( window).height() - parseInt($( '#container-bar-chart' ).css('padding-top')) 
+    - parseInt($( '#container-bar-chart' ).css('padding-bottom')) - 20;
+
+const svg = d3
+    .select('#svg-main')
+    .attr('preserveAspectRatio', 'xMidYMax meet')
+    .attr('viewBox', '0 0 '+ (width + margin.left + margin.right) + 
+          ' ' + (height + margin.top + margin.bottom))
     .style('height', verticalSpace - $( '#container-#select-series' ).height() - margin.bottom);
     
-var container = svg.append('g')
-    .attr('class', 'containerSVG')
+const container = svg
+    .append('g')
+    .attr('class', 'container-svg')
     .attr("transform", "translate(" + margin.left + "," + margin.top*-1 + ")");
 
 // adjust location of container within body (centered vertically)
@@ -68,8 +72,8 @@ $( 'select option' ).each(function (index) {
 /////////////////
 
 // y scale
-yMaxTotal=217;
-yMaxYTD=92;
+yMaxTotal = 217;
+yMaxYTD = 92;
 
 const yScaleTotal = d3.scaleLinear()
     .range([height, 0])
@@ -234,13 +238,22 @@ d3.csv('data/yearlyData.csv')
     addLabels(dataset);
 });
 
-// legend
-var legend = d3.select('#svg-legend')
+//////////////
+/// LEGEND ///
+//////////////
+
 scalar = $( '#svg-main' ).height()*18/544+5;
+
+var legend = d3
+    .select('#svg-legend')
+    .attr('preserveAspectRatio', 'xMidYMid meet')
+    .attr('viewBox', '0 0 '+ (width + margin.left + margin.right) + 
+          ' ' + (scalar))
+
 $('#svg-legend').height(scalar);
 margin.legend = vh(3);
 halfWidth = $( '#svg-main' ).width()/2;
-
+    
 function getTextWidth(text, font) {
     var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
     var context = canvas.getContext("2d");
@@ -289,7 +302,7 @@ legendTxt();
 legendEntries.append("rect")
     .attr('x', function(d,i) {
         if (i==0) {
-            return halfWidth - getTextWidth('Incidents', 'normal '+$( '#0 text' ).css('font-size')+' Roboto') - margin.legend - scalar*1.5;
+            return halfWidth - margin.legend - scalar*1.5 - getTextWidth('Incidents', 'normal '+$( '#0 text' ).css('font-size')+' Roboto');
         } else {
             return halfWidth + margin.legend;
         }
