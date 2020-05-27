@@ -11,16 +11,11 @@
     display: none;
 }
 
-html {
-    border-top: solid 2px gray;
-    border-bottom: solid 2px gray;
-}
-
 body {
     margin: 0;
 }
 
-#container-bar-chart { 
+#wrapper-bar-chart { 
     padding: 4vh 0;
 }
 
@@ -47,7 +42,7 @@ body {
     font-size: 5vh;
 }
 
-#svg-main {
+#svg-bar-chart {
     height: 72vh;
     width: 100%;
 }
@@ -61,3 +56,5 @@ body {
     width: 100%;
     /* height set in barChart.js */
 }
+
+/* css for most chart elements set in barChart.js */

@@ -216,7 +216,10 @@ table {
         height: 50vh;
         overflow: hidden;
         position: absolute;
-        border: none;
+        border-top: solid 2px gray;
+        border-bottom: solid 2px gray;
+        border-left: none;
+        border-right: none;
         background-color: white;
     }
 

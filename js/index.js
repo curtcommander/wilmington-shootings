@@ -33,12 +33,12 @@ window.onload = function() {
 
 // icon size
 function getIconSize() {
-    var vmin;
-    var currentZoom = map.getZoom();
-    var mapHeight = $( '#map' ).height();
-    var mapWidth = $( '#map' ).width();
-    mapHeight > mapWidth ? vmin = mapWidth : vmin = mapHeight;
-    return 0.03*vmin + 1.2*(currentZoom);
+    const mapStyles = window.getComputedStyle(document.getElementById('map'));
+    const mapWidth = parseFloat(mapStyles.getPropertyValue('width'));
+    const mapHeight = parseFloat(mapStyles.getPropertyValue('height'));
+    const vmin = Math.min(mapWidth, mapHeight)
+    const currentZoom = map.getZoom();
+    return 0.03*vmin + 1.2*currentZoom;
 };
 
 // initialize icons
@@ -60,95 +60,115 @@ const icon = L.divIcon({
 
 // adjust icon sizes
 function resizeIcons() {
+    // adjust size of existing icons
     const size = getIconSize();
+    const sizeCSS = String(size) + 'px';
+    document.querySelectorAll('#map svg:not(.leaflet-zoom-animated)').forEach(function(svg) {
+        svg.style.width = sizeCSS;
+        svg.style.height = sizeCSS;
+    })
     // change size of icon object
     icon.options.iconSize = [size, size];
-    // adjust size of existing icons
-    const w = String(size) + 'px';
-    document.querySelectorAll('#map svg:not(.leaflet-zoom-animated)').forEach(function(svg) {
-        svg.style.width = w;
-        svg.style.height = w;
+}
+map.on('zoomstart', resizeIcons)
+   .on('resize', resizeIcons)
+
+/////////////////////////////////////
+/// READ IN DATA AND INITIAL PLOT ///
+/////////////////////////////////////
+
+// load data from most recent year (incidentDataCurrent.csv)
+function loadInitialData(response) {
+    return new Promise(function(resolve) {
+        response.arrayBuffer().then(function(buffer) {
+            // get data as string
+            const blob = new Blob([buffer], {type : "application/zip"});
+            const zip = new JSZip();
+            zip.loadAsync(blob).then(function(zip) {
+                return zip.file('incidentDataCurrent.csv').async('string');
+            // parse and return data
+            }).then(function(dataAsString) {
+                initialData = d3.csvParse(dataAsString); 
+                resolve(initialData);
+            })
+        })
     })
 }
-map.on('resize', resizeIcons)
-   .on('zoomstart', resizeIcons)
 
-/////////////////
-/// LOAD DATA ///
-/////////////////
-
-// two global data objects
-// dataYearly for yearly data
-// dataChron for custom date ranges
-
-// initialize objects to put data into, populate select options
-
-var markers = L.layerGroup();
-var markerSelected = L.layerGroup();
-
-var dataChron, yearCurrent, year;
-var dataYearly = {};
-var yearAll = 2011;
-d3.csv('data/yearlyData.csv').then(function(data) {
-    yearCurrent = data[0].year;
-    while (yearAll <= yearCurrent) {
-        dataYearly[yearAll] = [];
-        yearAll++
-    };    
-    // iniatialize year, global var used to keep track of year selected
-    year = Number(yearCurrent);
-})
-
-// initial load and plot for current year data
-fetch('data/incidentDataCurrent.zip').then(function (response) {
-    response.arrayBuffer().then(function (buffer) {
-        var blob = new Blob([buffer], {type : "application/zip"});
-        var zip = new JSZip();
-        zip.loadAsync(blob)
-        .then(function (zip) {
-            return zip.file('incidentDataCurrent.csv').async('string');
-    })
-    .then(function(dataAsString) {
-        return d3.csvParse(dataAsString);
-    }).then( function(data) {
-        // write into dataChron
-        dataChron = data;
-        for (i = 0; i < dataChron.length; i++) {
-            delete dataChron[i].YEAR;
-            let d = dataChron[i];
-            // write into dataYearly
-            dataYearly[yearCurrent].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
-            // plot
-            L.marker([d.LAT, d.LONG],{icon: icon})
-            .on("click", onClick)
-            .addTo(markers)};
+// plot data returned by loadInitialData
+const markers = L.layerGroup();
+function plotInitialData(initialData) {
+    return new Promise(function(resolve) {
+        for (i = 0; i < initialData.length; i++) {
+            L.marker([initialData[i].LAT, initialData[i].LONG], {icon: icon})
+                .on("click", onClick)
+                .addTo(markers)
+        }
         markers.addTo(map);
-        })
         resizeIcons();
-    })
-}).then(function () {
-    // load rest of data into dataChron and dataYearly objects
-    fetch('data/incidentDataPrevious.zip').then(function (response) {
-        response.arrayBuffer().then(function (buffer) {
+        // pass initialData to prepareData
+        resolve(initialData);
+    })   
+}
+
+// prepare data
+// two global data objects: dataYearly and dataChron
+// dataYearly for yearly data (data keyed by year in descending order)
+// dataChron for custom date ranges (data in descending chronological order)
+
+// initialize dataYearly
+let dataYearly = {};
+let yearDataYearly = 2011;
+const yearCurrent = document.querySelector('#date-val option[selected="selected"]').value;
+while (yearDataYearly <= yearCurrent) {
+    dataYearly[yearDataYearly] = [];
+    yearDataYearly++
+}    
+
+// iniatialize year, global variable used to keep track of year selected
+let year = Number(yearCurrent);
+
+function prepareData(intialData) {
+    // add initial data to dataChron and dataYearly
+    dataChron = initialData;
+    for (i = 0; i < dataChron.length; i++) {
+        let d = dataChron[i];
+        // remove year from dataChron
+        delete d.YEAR;
+        // add incident to dataYearly (year currently set to most recent year)
+        dataYearly[year].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
+    }
+
+    // load rest of data into dataYearly and dataChron
+    fetch('data/incidentDataPrevious.zip').then(function(response) {
+        // get data as string
+        response.arrayBuffer().then(function(buffer) {
             var blob = new Blob([buffer], {type : "application/zip"});
             var zip = new JSZip();
-            zip.loadAsync(blob)
-            .then(function (zip) {
+            zip.loadAsync(blob).then(function(zip) {
                 return incidentData = zip.file('incidentDataPrevious.csv').async('string');
             })
-        .then(function (dataAsString) {
+        // parse data
+        .then(function(dataAsString) {
             return d3.csvParse(dataAsString);
-        }).then(function (data) {            
-            data.forEach( function(d) {
-                // write into dataChron
-                dataChron.push(d);
-                //write into dataYearly
+        // add data to dataYearly and dataChron
+        }).then(function(data) {            
+            data.forEach(function(d) {
+                // dataYearly
                 dataYearly[d.YEAR].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
+                // dataChron
+                delete d.YEAR;
+                dataChron.push(d);
                 })
             })
         })
     })
-})
+}
+
+fetch('data/incidentDataCurrent.zip')
+.then(loadInitialData)
+.then(plotInitialData)
+.then(prepareData)
 
 /////////////////
 /// DATE TYPE ///
@@ -234,7 +254,6 @@ function changeDateType (){
             'padding-bottom' : l+'vmin'
         });
         markers.clearLayers();
-        markerSelected.clearLayers();
         plotYearly();
     }
     adjustHeight();
@@ -274,7 +293,6 @@ function plotYearly() {
 // plot markers when year selected changes 
 function changeYear() {
     markers.clearLayers();
-    markerSelected.clearLayers();
     plotYearly();
     resizeIcons();
 }
@@ -286,7 +304,6 @@ $( '#date-val' ).selectmenu({
 // plot markers for custom date range
 function plotCustomDate() {
     markers.clearLayers();
-    markerSelected.clearLayers();
     const fromDateRange = adjustTimeZone(new Date($('#date-val-from').val()));
     const toDateRange = adjustTimeZone(new Date($('#date-val-to').val()));
     var flag = 0;
@@ -393,7 +410,7 @@ function onClick(e) {
 // txt variable assigned in barChart()
 var flagMarkerSelected = false;
 function defaultSidePanel() {
-    markerSelected.clearLayers();
+    //markerSelected.clearLayers();
     if (flagMarkerSelected) {
         $('#side-panel-default').css('display', 'unset');
         $('.incident').remove()
@@ -496,10 +513,11 @@ function barChart() {
         // change year by clicking on chart
         // setTimeouts used to fix load issues with IE
         window.changeYearListener = function() {
-            const rectsNum = $( 'iframe' ).contents().find('rect.remove.black').length;
+            const rectsNum = $( 'iframe' ).contents().find('#rects-bar-chart-black rect').length;
+            this.console.log(rectsNum)
             rectsNUM = yearCurrent-2010;
             if (rectsNum == rectsNUM) {
-                $( 'iframe' ).contents().find('rect.remove').on('click', function() {
+                $( 'iframe' ).contents().find('rect').on('click', function() {
                     // window.yearClicked from passYearParent in barChart.js
                     setTimeout( function () {
                         // custom date range
