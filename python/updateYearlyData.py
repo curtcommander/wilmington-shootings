@@ -21,7 +21,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 # path to data subdirectory
-path_data = os.path.dirname(os.path.realpath(__file__)) + '/data/'
+path_data = os.path.dirname(os.path.realpath(__file__))[:-len('python')] + '/data/'
 
 # get and parse response
 url = 'https://data.delawareonline.com/utils/shootings.php'

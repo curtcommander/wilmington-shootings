@@ -34,7 +34,7 @@ import pandas as pd
 from zipfile import ZipFile, ZIP_DEFLATED
 
 # path to data subdirectory
-path_data = os.path.dirname(os.path.realpath(__file__)) + '/data/'
+path_data = os.path.dirname(os.path.realpath(__file__))[:-len('python')] + '/data/'
 
 #############################################
 ### get old data and most recent incident ###

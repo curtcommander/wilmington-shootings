@@ -21,7 +21,7 @@ import math
 import os
 
 # path to root directory (WilmingtonShootings)
-path_root = os.path.dirname(os.path.realpath(__file__)) + '/'
+path_root = os.path.dirname(os.path.realpath(__file__))[:-len('python')] + '/'
 
 # path to data subdirectory
 path_data = path_root + 'data/'
@@ -70,18 +70,15 @@ with open(path_root + 'index.html', 'r+') as f:
 ### update barChart.js/barChart.min.js ###
 ##########################################
 
-# multiplied by maxes for top padding within bar charts
-percent_markup = 1.1
-
 # yMaxTotal
 totals = yearly_data.T.iloc[1:5,:]
 max_totals = totals.max().max()
-y_max_totals = math.ceil(max_totals * percent_markup)
+y_max_totals = math.ceil(max_totals)
 
 # yMaxYTD
 ytds = yearly_data.T.iloc[5:,:]
 max_ytds = ytds.max().max()
-y_max_ytds = math.ceil(max_ytds * percent_markup)
+y_max_ytds = math.ceil(max_ytds)
     
 # write to file
 files_path_in = os.listdir(path_root)
