@@ -31,16 +31,6 @@ window.onload = function() {
 /// ICONS ///
 /////////////
 
-// icon size
-function getIconSize() {
-    const mapStyles = window.getComputedStyle(document.getElementById('map'));
-    const mapWidth = parseFloat(mapStyles.getPropertyValue('width'));
-    const mapHeight = parseFloat(mapStyles.getPropertyValue('height'));
-    const vmin = Math.min(mapWidth, mapHeight)
-    const currentZoom = map.getZoom();
-    return 0.03*vmin + 1.2*currentZoom;
-};
-
 // initialize icons
 const svgTemplate = L.Util.template(' \
 <svg version="1.1" class="leaflet-data-marker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 15.847 15.847" style="enable-background:new 0 0 15.847 15.847;" xml:space="preserve"> \
@@ -58,20 +48,36 @@ const icon = L.divIcon({
       html: svgTemplate
 })
 
-// adjust icon sizes
-function resizeIcons() {
-    // adjust size of existing icons
+// icon size
+function getIconSize() {
+    const mapStyles = window.getComputedStyle(document.getElementById('map'));
+    const mapWidth = parseFloat(mapStyles.getPropertyValue('width'));
+    const mapHeight = parseFloat(mapStyles.getPropertyValue('height'));
+    const vmin = Math.min(mapWidth, mapHeight);
+    const currentZoom = map.getZoom();
+    return 0.03*vmin + 1.2*currentZoom;
+};
+
+// adjust icon sizes and anchors
+function adjustIcons() {
+    // adjust size and anchor of existing icons
     const size = getIconSize();
     const sizeCSS = String(size) + 'px';
-    document.querySelectorAll('#map svg:not(.leaflet-zoom-animated)').forEach(function(svg) {
+    const anchorCSS = size*-0.5+'px';
+    document.querySelectorAll('.leaflet-marker-icon').forEach(function(marker) {
+        // adjust size
+        const svg = marker.querySelector('svg');
         svg.style.width = sizeCSS;
         svg.style.height = sizeCSS;
+        // adjust anchors to accomodate new size
+        marker.style.marginLeft = anchorCSS;
+        marker.style.marginTop = anchorCSS;
     })
-    // change size of icon object
+    // change size of icon object, leaflet will automatically adjust icon anchor
     icon.options.iconSize = [size, size];
 }
-map.on('zoomstart', resizeIcons)
-   .on('resize', resizeIcons)
+map.on('zoomstart', adjustIcons)
+   .on('resize', adjustIcons)
 
 /////////////////////////////////////
 /// READ IN DATA AND INITIAL PLOT ///
@@ -99,13 +105,14 @@ function loadCurrentData(response) {
 const markers = L.layerGroup();
 function plotCurrentData(currentData) {
     return new Promise(function(resolve) {
+        // set intial icon size by calling adjustIcons
+        adjustIcons();
         for (i = 0; i < currentData.length; i++) {
             L.marker([currentData[i].LAT, currentData[i].LONG], {icon: icon})
                 .on("click", markerClickHandler)
                 .addTo(markers)
         }
         markers.addTo(map);
-        resizeIcons();
         // pass currentData to prepareData
         resolve(currentData);
     })   
@@ -185,7 +192,6 @@ function plotMarkersYear() {
             .on("click", markerClickHandler)
             .addTo(markers)};
     markers.addTo(map);
-    resizeIcons();
 }
 document.getElementById('date-val').addEventListener('change', plotMarkersYear);
 
@@ -213,7 +219,6 @@ function plotMarkersCustomDate() {
         }
     }
     markers.addTo(map);
-    resizeIcons();
 };
 
 /////////////////
@@ -365,25 +370,28 @@ bindRectsClickHandler = function() {
 
             // date type is year
             if (document.getElementById('date-type').value == 'year') {
-                // update date val with year clicked, window.yearClicked from passYearParent in barChart.js
-                document.getElementById('date-val').value = window.yearClicked;
-                // plot markers for year selected
-                plotMarkersYear(); 
+                // plot new markers if different year selected
+                if (year != window.yearClickedBarChart) {
+                    // update date val with year clicked, window.yearClickedBarChart from passYearParent in barChart.js
+                    document.getElementById('date-val').value = window.yearClickedBarChart;
+                    // plot markers for year selected
+                    plotMarkersYear();
+                }
 
             // date type is custom
             } else {
                 // update fromDate, first day of year clicked
-                fromDate = '01/01/'+window.yearClicked;
+                fromDate = '01/01/'+window.yearClickedBarChart;
                 document.getElementById('date-range-from').value = fromDate;
                 
                 // update toDate
                 // current year selected, toDate is today's date
-                if (window.yearClicked == yearCurrent) {
+                if (window.yearClickedBarChart == yearCurrent) {
                     today = new Date();
                     toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
                 // previous year selected, toDate is last day of previous year
                 } else {
-                    toDate = '12/31/'+year;
+                    toDate = '12/31/'+window.yearClickedBarChart;
                 }
                 document.getElementById('date-range-to').value = fromDate;
 

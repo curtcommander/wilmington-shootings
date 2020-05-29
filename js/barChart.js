@@ -226,7 +226,7 @@ function bindRectHoverListeners () {
 // pass rect's corresponding year to parent document on click
 function bindRectClickListeners() {
     d3.selectAll( 'rect' ).on('click', function(d) {
-        window.top.yearClicked = d.data.year;
+        window.top.yearClickedBarChart = d.data.year;
     });
 }
 
