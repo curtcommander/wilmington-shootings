@@ -80,22 +80,12 @@ const colors = ['black', '#D90022'];
 /// SET SERIES VARIABLES ///
 ////////////////////////////
 
-const seriesArray = ['Incidents', 'Victims', 'Incidents YTD', 'Victims YTD'];
-function getSeriesNum() {
-    seriesSelected = document.getElementsByClassName('ui-selectmenu-text')[0].innerHTML;
-    for (i in seriesArray) {
-        if (seriesArray[i] == seriesSelected) {
-            return i;
-        }
-    }    
-}
-
 // sets seriesNum, yScale, and dataSeries global variables
 // which are used in other funnctions
 // and depend on series selected (value of #select-series)
 function setSeriesVars() {
     // seriesNum 
-    seriesNum = getSeriesNum();
+    seriesNum = document.getElementById('select-series').value;
     
     // yScale
     if (seriesNum < 2) {
@@ -366,6 +356,4 @@ function handlerChangeSeries() {
     // only labels in the legend change with series selected
     labelsLegend();
 }
-$('#select-series').selectmenu({
-    change: handlerChangeSeries
-})
+document.getElementById('select-series').addEventListener('change', handlerChangeSeries);

@@ -40,9 +40,9 @@ h1 {
     line-height: 0;
 }
 
-#date-type-button, #date-val-button {
+#date-type, #date-val {
     font-weight: 500;
-    font-size: 5vmin;
+    font-size: 3.25vmin;
     border-style: none;
     width: 35%;
     border-radius: 5px;
@@ -60,16 +60,8 @@ h1 {
     background-size: .65em auto, 100%;
 }
 
-#date-type-button::-ms-expand, #date-val-button::-ms-expand {
+#date-type::-ms-expand, #date-val::-ms-expand {
 	display: none;
-}
-
-.ui-button {
-    color: black !important;
-}
-
-.ui-menu-item-wrapper {
-    font-size: 5vmin;
 }
 
 .custom-date {
@@ -83,12 +75,24 @@ h1 {
     width: 35vmin;
 }
 
-#ui-datepicker-div {
-    z-index: 999 !important
-}
-
 select::-ms-expand {
     border: none;
+}
+
+#date-range {
+    background-color : lightgray;
+    padding-top : 0.85vmin;
+    padding-bottom : 0.85vmin;
+    border-top : 0.85vmin solid gray;
+    display: none;
+}
+
+#container-date {
+    padding-bottom : 0;
+}
+
+#date-type {
+    margin-right: 2.5px;
 }
 
 /*---MAIN---*/
@@ -102,6 +106,7 @@ select::-ms-expand {
     width: 100%;
     float: left; 
     background-color: white;
+    z-index: 0;
 }
 
 .leaflet-control-attribution {
@@ -122,6 +127,10 @@ select::-ms-expand {
     float: left;
     padding: 0 10px 10px 10px;
     overflow: auto;
+}
+
+iframe {
+    display: none;
 }
 
 .incident_header>a, .incident_header {
@@ -180,20 +189,27 @@ table {
 
 /* large screens */
 @media only screen and (min-width: 800px) and (min-height: 400px) {
+    h1 {
+        height: 100px;
+    }
+
     #container-date {
-        padding-top: 0.85vmin;
-        padding-bottom: 0.85vmin;
+        height: 25px;
+        padding-top: 6px;
+        padding-bottom: 6px;
      }
     
-    #date-type-button, #date-val-button {
+    #date-type, #date-val {
         width: 150px;
         font-size: 3.25vmin;
         padding-top: 1px;
         padding-bottom: 1px;
     }
     
-    .ui-menu-item-wrapper {
-        font-size: 3.25vmin;
+    #date-range {
+        padding-top : 1.5vmin;
+        padding-bottom : 1.5vmin;
+        border-top-width : 1.5vmin;
     }
 
     .custom-date {
@@ -203,19 +219,22 @@ table {
 
     #map {
         width: calc(100% - 400px);
-        height: 100%;
+        height: calc(100vh - 137px);
     }
 
     #side-panel {
         width: 400px;
-        height: 100%;
+        height: calc(100vh - 137px);
+        position: relative;
     }
 
     iframe {
+        display: unset;
+        position: absolute;
+        top: calc((100vh - 137px - 50vh)/2 + 30px);
         width: 380px;
         height: 50vh;
         overflow: hidden;
-        position: absolute;
         border-top: solid 2px gray;
         border-bottom: solid 2px gray;
         border-left: none;
@@ -250,14 +269,14 @@ table {
 
 /* adjustments for iPad */
 @media all and (device-width: 1024px) and (device-height: 768px) {
-    #date-type-button, #date-val-button {
+    #date-type, #date-val {
         width: 150px;
   }
 }
 
 /* adjustments for iPad pro */
 @media all and (device-width: 1366px) and (device-height: 1024px) {
-    #date-type-button, #date-val-button {
+    #date-type, #date-val {
         width: 160px;
     }
 }

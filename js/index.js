@@ -77,8 +77,8 @@ map.on('zoomstart', resizeIcons)
 /// READ IN DATA AND INITIAL PLOT ///
 /////////////////////////////////////
 
-// load data from most recent year (incidentDataCurrent.csv)
-function loadInitialData(response) {
+// load current data
+function loadCurrentData(response) {
     return new Promise(function(resolve) {
         response.arrayBuffer().then(function(buffer) {
             // get data as string
@@ -88,32 +88,31 @@ function loadInitialData(response) {
                 return zip.file('incidentDataCurrent.csv').async('string');
             // parse and return data
             }).then(function(dataAsString) {
-                initialData = d3.csvParse(dataAsString); 
-                resolve(initialData);
+                currentData = d3.csvParse(dataAsString); 
+                resolve(currentData);
             })
         })
     })
 }
 
-// plot data returned by loadInitialData
+// plot data returned by loadCurrentData
 const markers = L.layerGroup();
-function plotInitialData(initialData) {
+function plotCurrentData(currentData) {
     return new Promise(function(resolve) {
-        for (i = 0; i < initialData.length; i++) {
-            L.marker([initialData[i].LAT, initialData[i].LONG], {icon: icon})
-                .on("click", onClick)
+        for (i = 0; i < currentData.length; i++) {
+            L.marker([currentData[i].LAT, currentData[i].LONG], {icon: icon})
+                .on("click", markerClickHandler)
                 .addTo(markers)
         }
         markers.addTo(map);
         resizeIcons();
-        // pass initialData to prepareData
-        resolve(initialData);
+        // pass currentData to prepareData
+        resolve(currentData);
     })   
 }
 
-// prepare data
-// two global data objects: dataYearly and dataChron
-// dataYearly for yearly data (data keyed by year in descending order)
+// prepare global data objects: dataYearly and dataChron
+// dataYearly for yearly data (data keyed by year in descending chronological order)
 // dataChron for custom date ranges (data in descending chronological order)
 
 // initialize dataYearly
@@ -128,9 +127,9 @@ while (yearDataYearly <= yearCurrent) {
 // iniatialize year, global variable used to keep track of year selected
 let year = Number(yearCurrent);
 
-function prepareData(intialData) {
+function prepareDataObjects(intialData) {
     // add initial data to dataChron and dataYearly
-    dataChron = initialData;
+    dataChron = currentData;
     for (i = 0; i < dataChron.length; i++) {
         let d = dataChron[i];
         // remove year from dataChron
@@ -166,9 +165,56 @@ function prepareData(intialData) {
 }
 
 fetch('data/incidentDataCurrent.zip')
-.then(loadInitialData)
-.then(plotInitialData)
-.then(prepareData)
+.then(loadCurrentData)
+.then(plotCurrentData)
+.then(prepareDataObjects)
+
+////////////////////
+/// PLOT MARKERS ///
+////////////////////
+
+// plot markers for year selected
+function plotMarkersYear() {
+    // clear old markers
+    markers.clearLayers();
+    // add new markers corresponding to year selected
+    year = Number(document.getElementById('date-val').value);
+    const dataYear = dataYearly[year];
+    for (i = 0; i < dataYear.length; i++) {
+        L.marker([dataYear[i].LAT,dataYear[i].LONG], {icon: icon})
+            .on("click", markerClickHandler)
+            .addTo(markers)};
+    markers.addTo(map);
+    resizeIcons();
+}
+document.getElementById('date-val').addEventListener('change', plotMarkersYear);
+
+// plot markers for custom date range
+function plotMarkersCustomDate() {
+    // clear old markers
+    markers.clearLayers();
+    // add new markers that fall in date range selected 
+    const fromDate = adjustTimeZone(new Date(document.getElementById('date-range-from').value));
+    const toDate = adjustTimeZone(new Date(document.getElementById('date-range-to').value));
+    // loop through dataChron (chronologically descending)
+    for (i = 0; i < dataChron.length; i++) {
+        let d = dataChron[i];
+        d.DATE = adjustTimeZone(new Date(d.DATE));
+        if (d.DATE >= fromDate) {
+            // date is in custom range, add marker
+            if (d.DATE <= toDate) {
+                L.marker([d.LAT, d.LONG],{icon: icon})
+                    .on("click", markerClickHandler)
+                    .addTo(markers)
+            }
+        // fromDate reached, break loop
+        } else if (d.Date < fromDate) {
+            break;
+        }
+    }
+    markers.addTo(map);
+    resizeIcons();
+};
 
 /////////////////
 /// DATE TYPE ///
@@ -179,158 +225,68 @@ function adjustTimeZone (d) {
     return new Date(d.getTime() + d.getTimezoneOffset()*60000)
 }
 
-function initializeDatePicker(from, to) {
-    sharedAttributes = {
-        changeMonth: true,
-        changeYear: true,
-        minDate: adjustTimeZone(new Date('2011-01-01')),
-        maxDate: adjustTimeZone(new Date()),
-        showAnim: 'slideDown',
-    }
-    $( '#date-val-from' ).datepicker(sharedAttributes);
-    $( '#date-val-to' ).datepicker(sharedAttributes);
-    $( '#date-val-from' ).datepicker('setDate', adjustTimeZone(from));
-    $( '#date-val-to' ).datepicker('setDate', adjustTimeZone(to));
-};
+function getYear() {
+    return document.getElementById('date-val').value;
+}
 
-// handler for when date-type selectmenu changes
-function changeDateType (){
-    var dateType = $( '#date-type' ).val();
-    // l used for css
-    if ($(window).width() > 800) {
-        l = '0.85'
-    } else {
-        l = '1.5'
-    }
-    // switch from year to custom
-    if (dateType == 'custom') {
-        year = $( '#date-val' ).val();
-        // remove year selectmenu
-        $( '#date-val' ).remove();
-        // add custom date ribbon
-        $( '#container-date' ).append(
-            '<div id="date-range">' +   
-            '<input type="text" id="date-val-from" class="custom-date"/>'+
-            '<span>&nbsp;-&nbsp;</span>' + 
-            '<input type="text" id="date-val-to" class="custom-date"/>' +
-            '</div>'
-        );
-        $( '#date-range' ).css({
-            'padding-top' : l+'vmin',
-            'padding-bottom' : l+'vmin',
-            'background-color' : 'lightgray',
-            'border-top' : l+'vmin solid gray'
-        });
-        $( '#container-date' ).css({
-            'padding-bottom' : '0'
-        });
+// handler for when date type changes
+function dateTypeChangeHandler (){
+    // get date type
+    const dateType = document.getElementById('date-type').value;
+    
+    // year
+    if (dateType == 'year') {
+        // show #date-val
+        const dateVal = document.getElementById('date-val');
+        dateVal.style.display = 'unset';
+        // hide #date-range
+        document.getElementById('date-range').style.display = 'none';
+        // update year from #date-range-from
+        year = Number(document.getElementById('date-range-from').value.substring(6));
 
-        fromDate = new Date(year+'-01-01');
-        toDate = new Date(year+'-12-31');
-        initializeDatePicker(fromDate, toDate);
-        $( '.custom-date' ).change(plotCustomDate);
-    }
-    // switch from custom to year
-    else {
-        year = Number($( '#date-val-from' ).val().substring(6));
-        // remove custom date ribbon
-        $( '#date-range' ).remove();
-        // add year selectmenu
-        $( '#container-date' ).append('<select id="date-val"></select>');
-        var yearAll = 2011;
-        while (yearAll <= yearCurrent) {
-            if (yearAll == year) {
-                $('#date-val').append('<option value="'+yearAll+'" selected = "selected">'+yearAll+'</option>');
-            } else {
-                $('#date-val').append('<option value="'+yearAll+'">'+yearAll+'</option>');
-            }
-            yearAll++
-        };
-        $( '#date-val' ).selectmenu({
-            change: changeYear
+        // year change handler
+        document.getElementById('date-val').addEventListener('change', function() {
+            markers.clearLayers();
+            plotMarkersYear();
         })
-        $( '.ui-icon' ).remove();
-        $( '#container-date' ).css({
-            'padding-bottom' : l+'vmin'
-        });
-        markers.clearLayers();
-        plotYearly();
+    // custom
+    } else {
+        // hide #date-val
+        document.getElementById('date-val').style.display = 'none';
+        // show #date-range
+        document.getElementById('date-range').style.display = 'block';
+        // update year for datepickers
+        year = getYear();
+        
+        // #date-range-from
+        flatpickr('#date-range-from', {
+            dateFormat: 'm/d/Y',
+            minDate: '01/01/2011',
+            maxDate: 'today',
+            defaultDate: '01/01/'+year
+        })
+
+        // #date-range-to
+        flatpickr('#date-range-to', {
+            dateFormat: 'm/d/Y',
+            minDate: document.getElementById('date-range-from').value,
+            maxDate: 'today',
+            defaultDate: (year == yearCurrent) ? 'today' : '12/31/'+year
+        })
+
+        // custom date change handler
+        document.querySelectorAll('.custom-date').forEach(function(customDate) {
+            customDate.addEventListener('change', plotMarkersCustomDate);
+        })
     }
-    adjustHeight();
-    // adjustIframePosition only defined for large screens, will error out on mobile otherwise
-    if ($( window ).width() > 800) {
-        adjustIframePosition();
-    }
-    resizeIcons();
 }
+document.getElementById('date-type').addEventListener('change', dateTypeChangeHandler);
 
-$( '#date-type' ).selectmenu({
-    change: changeDateType
-  });
- 
-// format selectmenus
-$(function () {
-    $( '.ui-icon' ).remove();
-    $( '#map' ).css('z-index', '0');
-});
+////////////////////////////
+/// MARKER CLICK HANDLER ///
+////////////////////////////
 
-///////////////
-/// MARKERS ///
-///////////////
-
-// plot markers for year selected
-function plotYearly() {
-    year = Number($( '#date-val' ).val());
-    if (year) {
-        for (i = 0; i < dataYearly[year].length; i++) {
-            L.marker([dataYearly[year][i].LAT,dataYearly[year][i].LONG],{icon: icon})
-            .on("click", onClick)
-            .addTo(markers)};
-        markers.addTo(map);
-    }
-};
-
-// plot markers when year selected changes 
-function changeYear() {
-    markers.clearLayers();
-    plotYearly();
-    resizeIcons();
-}
-
-$( '#date-val' ).selectmenu({
-    change: changeYear
-});
-
-// plot markers for custom date range
-function plotCustomDate() {
-    markers.clearLayers();
-    const fromDateRange = adjustTimeZone(new Date($('#date-val-from').val()));
-    const toDateRange = adjustTimeZone(new Date($('#date-val-to').val()));
-    var flag = 0;
-    // loop through data
-    for (i = 0; i < dataChron.length; i++) {
-        let d = dataChron[i];
-        d.DATE = adjustTimeZone(new Date(d.DATE));
-        if (d.DATE >= fromDateRange && d.DATE <= toDateRange) {
-            L.marker([d.LAT, d.LONG],{icon: icon})
-            .on("click", onClick)
-            .addTo(markers)
-            // first incident in date range found
-            if (flag == 0) {
-                flag++
-            }
-        // first incident before (chronologically) date range found
-        } else if (flag == 1) {
-            break;
-        }
-    }
-    markers.addTo(map);
-    resizeIcons();
-};
-
-// initialize seriesVal, used in barChart.html
-var seriesVal = 0;
-
+// used in markerClickHandler and defaultSidePanel
 function unselectMarker() {
     const markerSelectedOld = document.querySelector('.marker-selected');
     if (markerSelectedOld) {
@@ -339,7 +295,7 @@ function unselectMarker() {
 }
 
 // handler for when marker is clicked
-function onClick(e) {
+function markerClickHandler(e) {
     // clicking marker already selected pulls up default report
     const markerSelectedOld = document.querySelector('.marker-selected');
     const markerSelectedNew = e.target._icon;
@@ -347,205 +303,101 @@ function onClick(e) {
         defaultSidePanel();
     // unselected marker clicked
     } else {
-        // record series selected before report displayed
-        var seriesValChange = $( 'iframe' ).contents().find('series').val();
-        // seriesValChange is false if click on another shooting after previously clicking on shooting
-        if (seriesValChange) {
-            seriesVal = seriesValChange;
-        }
-        const lat = this._latlng.lat;
-        const long = this._latlng.lng;
-        var dateType = $( '#date-type' ).val();
-        // year selected (no custom date range)
-        // loop through data for year selected only
-        if (dateType != 'custom') {  
-            for (i = 0; i < dataYearly[year].length; i++) {
-                if (dataYearly[year][i].LAT == lat && dataYearly[year][i].LONG == long) {
-                    // stop displaying default report
-                    $('#side-panel-default').css('display', 'none');
-                    // display report
-                    $('#side-panel').append(dataYearly[year][i].HTML)
-                    // unselect previously selected marker
-                    unselectMarker();
-                    // select marker clicked on
-                    markerSelectedNew.classList.add('marker-selected');
-                    break;
-                };    
-            };    
-        // custom date range
-        // loop through data backwards chronologically
+        // get lat and long of marker clicked
+        const latlngClicked = this._latlng
+        const latClicked = latlngClicked.lat;
+        const longClicked = latlngClicked.lng;
+
+        // dataLoop
+        // get date type
+        const dateType = document.getElementById('date-type' ).value;
+        // date type is year, loop through data backwards chronologically for year selected only
+        if (dateType == 'year') { 
+            var dataLoop = dataYearly[year];
+        // date type is custom, loop through data backwards chronologically for all years
         } else {
-            const fromDateRange = adjustTimeZone(new Date($('#date-val-from').val()));
-            const toDateRange = adjustTimeZone(new Date($('#date-val-to').val()));
-            var flag = 0;
-            for (i = 0; i < dataChron.length; i++) {
-                let d = dataChron[i];
-                d.DATE = adjustTimeZone(new Date(d.DATE));
-                if (d.LAT == lat && d.LONG == long && d.DATE >= fromDateRange && d.DATE <= toDateRange) {
-                    // stop displaying default report
-                    $('#side-panel-default').css('display', 'none');
-                    // display report
-                    $('#side-panel').append(d.HTML)
-                    // unselect previously selected marker
-                    unselectMarker();
-                    // select marker clicked on
-                    markerSelectedNew.classList.add('marker-selected');
-                    if (flag == 0) {
-                        flag++
-                    }
-                } else if (flag == 1) {
-                    break;
-                }
-            }
+            var dataLoop = dataChron;
         }
-        flagMarkerSelected = true;
+
+        // loop through dataLoop
+        for (i = 0; i < dataLoop.length; i++) {
+            d = dataLoop[i];
+            if (d.LAT == latClicked && d.LONG == longClicked) {
+                // hide default report
+                document.getElementById('side-panel-default').style.display = 'none';
+                // append incident report to side panel and display it
+                const dNode = document.createRange().createContextualFragment(d.HTML);
+                document.getElementById('side-panel').append(dNode);
+                // unselect previously selected marker
+                unselectMarker();
+                // select marker clicked on
+                markerSelectedNew.classList.add('marker-selected');
+                break;
+            }  
+        }
     }
-};
+}
 
-//////////////////////////////////////////
-/// SWITCH BETWEEN REPORT AND DEFAULT ////
-//////////////////////////////////////////
+//////////////////////////
+/// DEFAULT SIDE PANEL ///
+//////////////////////////
 
-// switching between police report and default html
-// txt variable assigned in barChart()
-var flagMarkerSelected = false;
+// switch to default side panel when map or selected marker clicked
 function defaultSidePanel() {
-    //markerSelected.clearLayers();
-    if (flagMarkerSelected) {
-        $('#side-panel-default').css('display', 'unset');
-        $('.incident').remove()
-        adjustIframePosition();
-        changeYearClickChart();
-        flagMarkerSelected = false;
-        $( '.marker-selected' ).removeClass('marker-selected')
-    }
+    // unselect selected marker
+    unselectMarker();
+    // show default side panel
+    document.getElementById('side-panel-default').style.display = 'unset';
+    // remove incident from DOM
+    const incident = document.querySelector('.incident');
+    incident.parentNode.removeChild(incident);
 };
 map.on('click', defaultSidePanel);
-
-///////////////////////////////////////////////
-/// ADJUST HEIGHT OF MAP AND REPORT SECTION ///
-///////////////////////////////////////////////
-
-// height of map and shootings report fills to bottom of page
-function adjustHeight() {
-    if ($( window ).outerWidth(true) <= 800) {  
-        $( '#map' ).css('height', '45vh');
-        $( '#side-panel' ).css('height', $( window ).height() - $( '#top' ).height() - $( '#map' ).height());
-    } else {
-        $( '#map' ).height($( window ).height() - $( '#top' ).height());
-        $( '#side-panel' ).height($( window ).height() - $( '#top' ).height() 
-            - parseInt($( '#side-panel' ).css('padding-bottom'))
-        );
-    }
-};
-$(adjustHeight);
-$( window ).resize(adjustHeight);
 
 //////////////////
 /// BAR CHART ////
 //////////////////
 
-vh = function(v) {
-    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-    return (v * h) / 100;
-}
+// change year by clicking on chart
+bindRectsClickHandler = function() {
+    barChart.contentDocument.querySelectorAll('rect').forEach(function(rect) {
+        rect.addEventListener('click', function() {
 
-function adjustIframePosition() {
-    $( 'iframe' ).css('transform', 
-        'translate(0,'+ (($( window ).height() - $( '#top' ).height() - vh(50))/2 - 2*$( '#side-panel p' ).outerHeight()) + 'px)');
-};
-$(adjustIframePosition);
+            // date type is year
+            if (document.getElementById('date-type').value == 'year') {
+                // update date val with year clicked, window.yearClicked from passYearParent in barChart.js
+                document.getElementById('date-val').value = window.yearClicked;
+                // plot markers for year selected
+                plotMarkersYear(); 
 
-function toggleBarChart() {
-    // remove iframe if window <= 800px
-    if ($( window ).width() <= 800) {
-        $('iframe').css('display', 'none');
-    // insert iframe if window > 800px and default side panel being displayed
-    } else if (!flagMarkerSelected) {
-        $( 'iframe' ).css('display', 'unset');
-    }
-}
+            // date type is custom
+            } else {
+                // update fromDate, first day of year clicked
+                fromDate = '01/01/'+window.yearClicked;
+                document.getElementById('date-range-from').value = fromDate;
+                
+                // update toDate
+                // current year selected, toDate is today's date
+                if (window.yearClicked == yearCurrent) {
+                    today = new Date();
+                    toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
+                // previous year selected, toDate is last day of previous year
+                } else {
+                    toDate = '12/31/'+year;
+                }
+                document.getElementById('date-range-to').value = fromDate;
 
-window.onresize = function() {
-    adjustIframePosition();
-    toggleBarChart();
-}
-
-changeYearClickChart = function() {
-    $( 'iframe' ).on('load', function () {
-        changeYearListener();
-        // listener for when seriesSelected changes
-        $('iframe').contents().find('ul').on('click', function () {
-            changeYearListener();
+                // plot markers for year selected
+                plotMarkersCustomDate();
+            }
         })
     })
-};
-
-// barChart also contains css formatting for date selectmenus
-function barChart() {
-    var dateType = $( '#date-type' ).val();
-    // bar chart removed if window width <= 800px
-    if ($( window ).width() <= 800) {
-        if (dateType != 'custom') {
-            $( '#container-date' ).css({
-                'padding-bottom': '1.5vmin'
-            })
-        } else {
-            $( '#date-range').css({
-                'padding-top': '1.5vmin',
-                'padding-bottom': '1.5vmin',
-                'border-top': '1.5vmin solid gray'
-            })
-        }
-    // bar chart displayed if window width > 800px
-    } else if ($( '#side-panel iframe').length == 0) {
-        if (dateType != 'custom') {
-            $( '#container-date' ).css({
-                'padding-bottom': '.85vmin'
-            })
-        } else {
-            $( '#date-range').css({
-                'padding-top': '0.85vmin',
-                'padding-bottom': '0.85vmin',
-                'border-top': '0.85vmin solid gray'
-            })
-        }
-        // change year by clicking on chart
-        // setTimeouts used to fix load issues with IE
-        window.changeYearListener = function() {
-            const rectsNum = $( 'iframe' ).contents().find('#rects-bar-chart-black rect').length;
-            this.console.log(rectsNum)
-            rectsNUM = yearCurrent-2010;
-            if (rectsNum == rectsNUM) {
-                $( 'iframe' ).contents().find('rect').on('click', function() {
-                    // window.yearClicked from passYearParent in barChart.js
-                    setTimeout( function () {
-                        // custom date range
-                        if (!($('#date-val').val())) {
-                            fromDate = '01/01/'+window.yearClicked;
-                            if (window.yearClicked == yearCurrent) {
-                                today = new Date();
-                                toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
-                            } else {
-                                toDate = '12/31/'+window.yearClicked;
-                            }
-                            $( '#date-val-from' ).val(fromDate);
-                            $( '#date-val-to' ).val(toDate);
-                            plotCustomDate();
-                        } else {
-                        // year
-                            $('#date-val').val(window.yearClicked);
-                            $('#date-val').selectmenu('refresh');
-                            changeYear();
-                        }
-                    }, 50);
-                })
-            } else {
-                setTimeout(changeYearListener,100);
-            }
-        };
-
-        changeYearClickChart();
-    }
 }
-barChart();
+
+barChart = window.frames['barChart'];
+barChart.onload = function() {
+    // bind handler for when rects clicked
+    bindRectsClickHandler();
+    // rebind click handler to rects when series selected changes
+    barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
+}
