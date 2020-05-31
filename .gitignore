@@ -1,3 +1,5 @@
 config.py
+!js/jszip.min.js
+push.sh
 notes.txt
 __pycache__/
