@@ -24,7 +24,7 @@ L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext
 
 // ensure map loads properly
 window.addEventListener('load', function() {
-    map.invalidateSize()
+    map.invalidateSize();
 })
 
 /////////////
@@ -131,8 +131,8 @@ while (yearDataYearly <= yearCurrent) {
     yearDataYearly++
 }    
 
-// iniatialize year, global variable used to keep track of year selected
-let year = Number(yearCurrent);
+// iniatialize year, global variable (string) used to keep track of year selected
+let year = yearCurrent;
 
 function prepareDataObjects(intialData) {
     // add initial data to dataChron and dataYearly
@@ -185,7 +185,6 @@ function plotMarkersYear() {
     // clear old markers
     markers.clearLayers();
     // add new markers corresponding to year selected
-    year = Number(document.getElementById('date-year').value);
     const dataYear = dataYearly[year];
     for (i = 0; i < dataYear.length; i++) {
         L.marker([dataYear[i].LAT,dataYear[i].LONG], {icon: icon})
@@ -193,19 +192,28 @@ function plotMarkersYear() {
             .addTo(markers)};
     markers.addTo(map);
 }
-document.getElementById('date-year').addEventListener('change', plotMarkersYear);
+// year change
+document.getElementById('date-year').addEventListener('change', function() {
+    year = this.value;
+    plotMarkersYear();
+})
+
+// negate time zone offset when date object parsed from string
+function adjustTimeZoneOffset (d) {
+    return new Date(d.getTime() + d.getTimezoneOffset()*60000)
+}
 
 // plot markers for custom date range
 function plotMarkersCustomDate() {
     // clear old markers
     markers.clearLayers();
     // add new markers that fall in date range selected 
-    const fromDate = adjustTimeZone(new Date(document.getElementById('date-custom-from').value));
-    const toDate = adjustTimeZone(new Date(document.getElementById('date-custom-to').value));
+    const fromDate = adjustTimeZoneOffset(new Date(document.getElementById('date-custom-from').value));
+    const toDate = adjustTimeZoneOffset(new Date(document.getElementById('date-custom-to').value));
     // loop through dataChron (chronologically descending)
     for (i = 0; i < dataChron.length; i++) {
         let d = dataChron[i];
-        d.DATE = adjustTimeZone(new Date(d.DATE));
+        d.DATE = adjustTimeZoneOffset(new Date(d.DATE));
         if (d.DATE >= fromDate) {
             // date is in custom range, add marker
             if (d.DATE <= toDate) {
@@ -220,6 +228,7 @@ function plotMarkersCustomDate() {
     }
     markers.addTo(map);
 };
+// custom date change
 document.querySelectorAll('#date-custom-from, #date-custom-to').forEach(function(dateCustom) {
     dateCustom.addEventListener('change', plotMarkersCustomDate);
 })
@@ -253,15 +262,17 @@ function updateDatePickers() {
     flatpickr('#date-custom-to', toDateOptions)
 }
 
-// ensure max date is to date
+// ensure max from date is to date
 document.getElementById('date-custom-to').addEventListener('change', function() {
     fromDateOptions.maxDate = document.getElementById('date-custom-to').value;
+    fromDateOptions.defaultDate = document.getElementById('date-custom-from').value;
     flatpickr('#date-custom-from', fromDateOptions)
 })
 
 // ensure min to date is from date
 document.getElementById('date-custom-from').addEventListener('change', function() {
     toDateOptions.minDate = document.getElementById('date-custom-from').value;
+    toDateOptions.defaultDate = document.getElementById('date-custom-to').value;
     flatpickr('#date-custom-to', toDateOptions)
 })
 
@@ -269,43 +280,13 @@ document.getElementById('date-custom-from').addEventListener('change', function(
 /// DATE TYPE ///
 /////////////////
 
-function adjustTimeZone (d) {
-    return new Date(d.getTime() + d.getTimezoneOffset()*60000)
-}
-
-function getYear() {
-    return document.getElementById('date-year').value;
-}
-
 // handler for when date type changes
 function dateTypeChangeHandler() {
     // get date type
     const dateType = document.getElementById('date-type').value;
     
-    // year
-    if (dateType == 'year') {
-        // show #date-year
-        const dateYear = document.getElementById('date-year');
-        dateYear.style.display = 'unset';
-        // hide #date-custom
-        document.getElementById('date-custom').style.display = 'none';
-        // adjust heights of map and side panel (heightYear set below)
-        document.getElementById('map').style.height = heightYear;
-        document.getElementById('side-panel').style.height = heightYear;
-
-        // update year from #date-custom-from and plot markers
-        year = Number(document.getElementById('date-custom-from').value.substring(6));
-        dateYear.value = year;
-        plotMarkersYear();
-
-        // year change handler
-        document.getElementById('date-year').addEventListener('change', function() {
-            markers.clearLayers();
-            plotMarkersYear();
-        })
-
-    // custom
-    } else {
+    // year to custom
+    if (dateType == 'custom') {
         // hide #date-year
         document.getElementById('date-year').style.display = 'none';
         // show #date-custom
@@ -323,20 +304,31 @@ function dateTypeChangeHandler() {
         document.getElementById('side-panel').style.height = heightCustom;
 
         // update year for datepickers
-        year = getYear();
-        document.getElementById('date-custom-from').value = `1/1/${year}`;
+        document.getElementById('date-custom-from').value = '1/1/'+year;
         if (year == yearCurrent) {
             const today = new Date();
             document.getElementById('date-custom-to').value = String(today.getMonth()+1)+'/'+today.getDate()+'/'+year;    
         } else {
-            document.getElementById('date-custom-to').value = `12/31/${year}`;
+            document.getElementById('date-custom-to').value = '12/31/'+year;
         }
         updateDatePickers();
-        
-        // custom date change handler
-        document.querySelectorAll('.custom-date').forEach(function(customDate) {
-            customDate.addEventListener('change', plotMarkersCustomDate);
-        })
+
+    // custom to year
+    } else {
+        // show #date-year
+        const dateYear = document.getElementById('date-year');
+        dateYear.style.display = 'unset';
+        // hide #date-custom
+        document.getElementById('date-custom').style.display = 'none';
+        // adjust heights of map and side panel (heightYear set below)
+        document.getElementById('map').style.height = heightYear;
+        document.getElementById('side-panel').style.height = heightYear;
+
+        // update year from #date-custom-from and plot markers
+        year = document.getElementById('date-custom-from').value.substring(6);
+        dateYear.value = year;
+        // custom date range likely different from year range, replot markers
+        plotMarkersYear();
     }
 }
 document.getElementById('date-type').addEventListener('change', dateTypeChangeHandler);
@@ -345,7 +337,7 @@ document.getElementById('date-type').addEventListener('change', dateTypeChangeHa
 /// MARKER CLICK HANDLER ///
 ////////////////////////////
 
-// used in markerClickHandler and defaultSidePanel
+// used in selectMarker and defaultSidePanel
 function unselectMarker() {
     const markerSelectedOld = document.querySelector('.marker-selected');
     if (markerSelectedOld) {
@@ -353,11 +345,32 @@ function unselectMarker() {
     }
 }
 
+// select marker and display corresponding incident report
+function selectMarker() {
+    // unselect previously selected marker
+    unselectMarker();
+    // select marker clicked on
+    markerSelectedNew.classList.add('marker-selected');
+
+    // hide default report
+    document.getElementById('side-panel-default').style.display = 'none';
+    // remove previous incident report
+    const incident = document.querySelector('.incident');
+    if (incident) {
+        incident.parentNode.removeChild(incident);
+    }
+    // append incident report to side panel and display it
+    const dNode = document.createRange().createContextualFragment(d.HTML);
+    document.getElementById('side-panel').append(dNode);
+}
+
+
 // handler for when marker is clicked
 function markerClickHandler(e) {
     // clicking marker already selected pulls up default report
     const markerSelectedOld = document.querySelector('.marker-selected');
-    const markerSelectedNew = e.target._icon;
+    // global so that selectMarker can access it
+    markerSelectedNew = e.target._icon;
     if (markerSelectedOld == markerSelectedNew) {
         defaultSidePanel();
     // unselected marker clicked
@@ -367,32 +380,32 @@ function markerClickHandler(e) {
         const latClicked = latlngClicked.lat;
         const longClicked = latlngClicked.lng;
 
-        // dataLoop
         // get date type
         const dateType = document.getElementById('date-type' ).value;
+        
         // date type is year, loop through data backwards chronologically for year selected only
         if (dateType == 'year') { 
-            var dataLoop = dataYearly[year];
+            var dataYear = dataYearly[year];
+            for (let i = 0; i < dataYear.length; i++) {
+                d = dataYear[i];
+                if (d.LAT == latClicked && d.LONG == longClicked) {
+                    selectMarker();
+                    break;
+                }
+            }
+
         // date type is custom, loop through data backwards chronologically for all years
         } else {
-            var dataLoop = dataChron;
-        }
-
-        // loop through dataLoop
-        for (i = 0; i < dataLoop.length; i++) {
-            d = dataLoop[i];
-            if (d.LAT == latClicked && d.LONG == longClicked) {
-                // hide default report
-                document.getElementById('side-panel-default').style.display = 'none';
-                // append incident report to side panel and display it
-                const dNode = document.createRange().createContextualFragment(d.HTML);
-                document.getElementById('side-panel').append(dNode);
-                // unselect previously selected marker
-                unselectMarker();
-                // select marker clicked on
-                markerSelectedNew.classList.add('marker-selected');
-                break;
-            }  
+            const fromDate = adjustTimeZoneOffset(new Date(document.getElementById('date-custom-from').value));
+            const toDate = adjustTimeZoneOffset(new Date(document.getElementById('date-custom-to').value));
+            for (let i = 0; i < dataChron.length; i++) {
+                d = dataChron[i];
+                const date = adjustTimeZoneOffset(new Date(d.DATE));
+                if (d.LAT == latClicked && d.LONG == longClicked && date >= fromDate && date <= toDate) {
+                    selectMarker();
+                    break;
+                }
+            }
         }
     }
 }
