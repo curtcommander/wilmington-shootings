@@ -228,30 +228,42 @@ document.querySelectorAll('#date-custom-from, #date-custom-to').forEach(function
 /// DATE PICKERS ///
 ////////////////////
 
-const fromDateOptions = {
+fromDateOptions = {
     dateFormat: 'm/d/Y',
-    minDate: '01/01/2011',
+    minDate: '01/01/2011'
+}
+
+toDateOptions = {
+    dateFormat: 'm/d/Y',
     maxDate: 'today'
 }
 
-const toDateOptions = {
-    dateFormat: 'm/d/Y',
-    maxDate: 'today',
-}
-
-// #date-custom-to
 function updateDatePickers() {
     const fromDate = document.getElementById('date-custom-from').value;
-
-    // #date-custom-from
+    const toDate = document.getElementById('date-custom-to').value;
+    
+    // from date
+    fromDateOptions.maxDate = toDate;
     fromDateOptions.defaultDate = fromDate;
     flatpickr('#date-custom-from', fromDateOptions);
 
-    // #date-custom-to
+    // to date
     toDateOptions.minDate = fromDate;
-    toDateOptions.defaultDate = document.getElementById('date-custom-to').value;
+    toDateOptions.defaultDate = toDate;
     flatpickr('#date-custom-to', toDateOptions)
 }
+
+// ensure max date is to date
+document.getElementById('date-custom-to').addEventListener('change', function() {
+    fromDateOptions.maxDate = document.getElementById('date-custom-to').value;
+    flatpickr('#date-custom-from', fromDateOptions)
+})
+
+// ensure min to date is from date
+document.getElementById('date-custom-from').addEventListener('change', function() {
+    toDateOptions.minDate = document.getElementById('date-custom-from').value;
+    flatpickr('#date-custom-to', toDateOptions)
+})
 
 /////////////////
 /// DATE TYPE ///
@@ -313,7 +325,12 @@ function dateTypeChangeHandler() {
         // update year for datepickers
         year = getYear();
         document.getElementById('date-custom-from').value = `1/1/${year}`;
-        document.getElementById('date-custom-to').value = `12/31/${year}`;
+        if (year == yearCurrent) {
+            const today = new Date();
+            document.getElementById('date-custom-to').value = String(today.getMonth()+1)+'/'+today.getDate()+'/'+year;    
+        } else {
+            document.getElementById('date-custom-to').value = `12/31/${year}`;
+        }
         updateDatePickers();
         
         // custom date change handler
