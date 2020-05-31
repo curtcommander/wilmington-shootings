@@ -446,10 +446,13 @@ bindRectsClickHandler = function() {
     })
 }
 
-barChart = window.frames['barChart'];
-barChart.addEventListener('load', function() {
-    // bind handler for when rects clicked
-    bindRectsClickHandler();
-    // rebind click handler to rects when series selected changes
-    barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);    
+// bind handlers to rect click events
+// window load event and setTimeout used to ensure rects are selected
+// when iframe load event is used the rects don't get selected sometimes
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        barChart = window.frames['barChart'];
+        bindRectsClickHandler();
+        barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
+    }, 100)
 })
