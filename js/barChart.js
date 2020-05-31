@@ -185,7 +185,8 @@ function labelsBarChart() {
                 .text(function(d) {return getLabelText(d)})
                 .attr('text-anchor', 'middle')
                 .attr('fill', 'white')
-                .style('font-size', '3vh')
+                .attr('pointer-events', 'none')
+                .attr('font-size', '3vh')
 }
 
 ///////////////////////
@@ -216,7 +217,7 @@ function rectMouseout(rect) {
 }
 
 function bindRectHoverListeners () {
-    rects = document.querySelectorAll('rect')
+    rects = document.querySelectorAll('#svg-bar-chart rect');
     rects.forEach(function(rect) {
         rect.addEventListener('mouseover', function() {rectMouseenter(rect)});
         rect.addEventListener('mouseout', function() {rectMouseout(rect)});

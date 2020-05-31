@@ -32,17 +32,22 @@ h1 {
 
 #container-date {
     box-sizing: content-box;
-    padding-top: 1.5vmin;
-    padding-bottom: 1.5vmin;
+    padding-top: 6px;
+    padding-bottom: 6px;
     margin: auto;
     text-align: center;
     background-color: gray;
     line-height: 0;
 }
 
-#date-type, #date-val {
+/* space between #date-type and #date-year */
+#date-type {
+    margin-right: 2.5px;
+}
+
+#date-type, #date-year {
     font-weight: 500;
-    font-size: 3.25vmin;
+    font-size: 18px;
     border-style: none;
     width: 35%;
     border-radius: 5px;
@@ -60,39 +65,27 @@ h1 {
     background-size: .65em auto, 100%;
 }
 
-#date-type::-ms-expand, #date-val::-ms-expand {
-	display: none;
-}
-
-.custom-date {
-    text-align: center;
-    padding: 2px;
-    font-weight: 500;
-    font-size: 5vmin;
-    border-radius: 5px;
-    border: solid gray;
-    border: none;
-    width: 35vmin;
-}
-
 select::-ms-expand {
     border: none;
 }
 
-#date-range {
+#date-custom {
     background-color : lightgray;
-    padding-top : 0.85vmin;
-    padding-bottom : 0.85vmin;
-    border-top : 0.85vmin solid gray;
+    padding-top : 6px;
+    padding-bottom : 6px;
     display: none;
+    text-align: center;
 }
 
-#container-date {
-    padding-bottom : 0;
-}
-
-#date-type {
-    margin-right: 2.5px;
+#date-custom-from, #date-custom-to {
+    text-align: center;
+    padding: 2px;
+    font-weight: 500;
+    font-size: 18px;
+    border-radius: 5px;
+    border: solid gray;
+    border: none;
+    width: 35vmin;
 }
 
 /*---MAIN---*/
@@ -194,27 +187,23 @@ table {
     }
 
     #container-date {
-        height: 25px;
         padding-top: 6px;
         padding-bottom: 6px;
      }
     
-    #date-type, #date-val {
+    #date-type, #date-year {
         width: 150px;
-        font-size: 3.25vmin;
         padding-top: 1px;
         padding-bottom: 1px;
     }
     
-    #date-range {
-        padding-top : 1.5vmin;
-        padding-bottom : 1.5vmin;
-        border-top-width : 1.5vmin;
+    #date-custom {
+        padding-top : 6px;
+        padding-bottom : 6px;
     }
 
-    .custom-date {
+    #date-custom-from, #date-custom-to {
         width: 20vmin;
-        font-size: 3.25vmin;
     }
 
     #map {
@@ -269,14 +258,14 @@ table {
 
 /* adjustments for iPad */
 @media all and (device-width: 1024px) and (device-height: 768px) {
-    #date-type, #date-val {
+    #date-type, #date-year {
         width: 150px;
   }
 }
 
 /* adjustments for iPad pro */
 @media all and (device-width: 1366px) and (device-height: 1024px) {
-    #date-type, #date-val {
+    #date-type, #date-year {
         width: 160px;
     }
 }

@@ -23,9 +23,9 @@ L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext
 .addTo(map);
 
 // ensure map loads properly
-window.onload = function() {
+window.addEventListener('load', function() {
     map.invalidateSize()
-}
+})
 
 /////////////
 /// ICONS ///
@@ -125,7 +125,7 @@ function plotCurrentData(currentData) {
 // initialize dataYearly
 let dataYearly = {};
 let yearDataYearly = 2011;
-const yearCurrent = document.querySelector('#date-val option[selected="selected"]').value;
+const yearCurrent = document.querySelector('#date-year option[selected="selected"]').value;
 while (yearDataYearly <= yearCurrent) {
     dataYearly[yearDataYearly] = [];
     yearDataYearly++
@@ -185,7 +185,7 @@ function plotMarkersYear() {
     // clear old markers
     markers.clearLayers();
     // add new markers corresponding to year selected
-    year = Number(document.getElementById('date-val').value);
+    year = Number(document.getElementById('date-year').value);
     const dataYear = dataYearly[year];
     for (i = 0; i < dataYear.length; i++) {
         L.marker([dataYear[i].LAT,dataYear[i].LONG], {icon: icon})
@@ -193,15 +193,15 @@ function plotMarkersYear() {
             .addTo(markers)};
     markers.addTo(map);
 }
-document.getElementById('date-val').addEventListener('change', plotMarkersYear);
+document.getElementById('date-year').addEventListener('change', plotMarkersYear);
 
 // plot markers for custom date range
 function plotMarkersCustomDate() {
     // clear old markers
     markers.clearLayers();
     // add new markers that fall in date range selected 
-    const fromDate = adjustTimeZone(new Date(document.getElementById('date-range-from').value));
-    const toDate = adjustTimeZone(new Date(document.getElementById('date-range-to').value));
+    const fromDate = adjustTimeZone(new Date(document.getElementById('date-custom-from').value));
+    const toDate = adjustTimeZone(new Date(document.getElementById('date-custom-to').value));
     // loop through dataChron (chronologically descending)
     for (i = 0; i < dataChron.length; i++) {
         let d = dataChron[i];
@@ -220,65 +220,102 @@ function plotMarkersCustomDate() {
     }
     markers.addTo(map);
 };
+document.querySelectorAll('#date-custom-from, #date-custom-to').forEach(function(dateCustom) {
+    dateCustom.addEventListener('change', plotMarkersCustomDate);
+})
+
+////////////////////
+/// DATE PICKERS ///
+////////////////////
+
+const fromDateOptions = {
+    dateFormat: 'm/d/Y',
+    minDate: '01/01/2011',
+    maxDate: 'today'
+}
+
+const toDateOptions = {
+    dateFormat: 'm/d/Y',
+    maxDate: 'today',
+}
+
+// #date-custom-to
+function updateDatePickers() {
+    const fromDate = document.getElementById('date-custom-from').value;
+
+    // #date-custom-from
+    fromDateOptions.defaultDate = fromDate;
+    flatpickr('#date-custom-from', fromDateOptions);
+
+    // #date-custom-to
+    toDateOptions.minDate = fromDate;
+    toDateOptions.defaultDate = document.getElementById('date-custom-to').value;
+    flatpickr('#date-custom-to', toDateOptions)
+}
 
 /////////////////
 /// DATE TYPE ///
 /////////////////
 
-// date picker for custom date range
 function adjustTimeZone (d) {
     return new Date(d.getTime() + d.getTimezoneOffset()*60000)
 }
 
 function getYear() {
-    return document.getElementById('date-val').value;
+    return document.getElementById('date-year').value;
 }
 
 // handler for when date type changes
-function dateTypeChangeHandler (){
+function dateTypeChangeHandler() {
     // get date type
     const dateType = document.getElementById('date-type').value;
     
     // year
     if (dateType == 'year') {
-        // show #date-val
-        const dateVal = document.getElementById('date-val');
-        dateVal.style.display = 'unset';
-        // hide #date-range
-        document.getElementById('date-range').style.display = 'none';
-        // update year from #date-range-from
-        year = Number(document.getElementById('date-range-from').value.substring(6));
+        // show #date-year
+        const dateYear = document.getElementById('date-year');
+        dateYear.style.display = 'unset';
+        // hide #date-custom
+        document.getElementById('date-custom').style.display = 'none';
+        // adjust heights of map and side panel (heightYear set below)
+        document.getElementById('map').style.height = heightYear;
+        document.getElementById('side-panel').style.height = heightYear;
+
+        // update year from #date-custom-from and plot markers
+        year = Number(document.getElementById('date-custom-from').value.substring(6));
+        dateYear.value = year;
+        plotMarkersYear();
 
         // year change handler
-        document.getElementById('date-val').addEventListener('change', function() {
+        document.getElementById('date-year').addEventListener('change', function() {
             markers.clearLayers();
             plotMarkersYear();
         })
+
     // custom
     } else {
-        // hide #date-val
-        document.getElementById('date-val').style.display = 'none';
-        // show #date-range
-        document.getElementById('date-range').style.display = 'block';
+        // hide #date-year
+        document.getElementById('date-year').style.display = 'none';
+        // show #date-custom
+        document.getElementById('date-custom').style.display = 'block';
+
+        // get heights of map and side panel on first switch to custom date type
+        if (typeof(heightCustom) == 'undefined') {
+            heightYear = window.getComputedStyle(document.getElementById('map')).getPropertyValue('height');
+            heightDateCustom = parseFloat(window.getComputedStyle(document.getElementById('date-custom')).getPropertyValue('height'));
+            heightCustom = parseFloat(heightYear) - heightDateCustom + 'px';
+        }
+
+        // adjust heights of map and side panel
+        document.getElementById('map').style.height = heightCustom;
+        document.getElementById('side-panel').style.height = heightCustom;
+
         // update year for datepickers
         year = getYear();
+        document.getElementById('date-custom-from').value = `1/1/${year}`;
+        document.getElementById('date-custom-to').value = `12/31/${year}`;
+        updateDatePickers();
         
-        // #date-range-from
-        flatpickr('#date-range-from', {
-            dateFormat: 'm/d/Y',
-            minDate: '01/01/2011',
-            maxDate: 'today',
-            defaultDate: '01/01/'+year
-        })
-
-        // #date-range-to
-        flatpickr('#date-range-to', {
-            dateFormat: 'm/d/Y',
-            minDate: document.getElementById('date-range-from').value,
-            maxDate: 'today',
-            defaultDate: (year == yearCurrent) ? 'today' : '12/31/'+year
-        })
-
         // custom date change handler
         document.querySelectorAll('.custom-date').forEach(function(customDate) {
             customDate.addEventListener('change', plotMarkersCustomDate);
@@ -349,14 +386,17 @@ function markerClickHandler(e) {
 
 // switch to default side panel when map or selected marker clicked
 function defaultSidePanel() {
-    // unselect selected marker
-    unselectMarker();
-    // show default side panel
-    document.getElementById('side-panel-default').style.display = 'unset';
-    // remove incident from DOM
-    const incident = document.querySelector('.incident');
-    incident.parentNode.removeChild(incident);
-};
+    // switch to default side panel if default side panel not already being displayed
+    if (document.getElementById('side-panel-default').style.display == 'none') {
+        // unselect selected marker
+        unselectMarker();
+        // show default side panel
+        document.getElementById('side-panel-default').style.display = 'unset';
+        // remove incident from DOM
+        const incident = document.querySelector('.incident');
+        incident.parentNode.removeChild(incident);
+    }
+}
 map.on('click', defaultSidePanel);
 
 //////////////////
@@ -365,15 +405,17 @@ map.on('click', defaultSidePanel);
 
 // change year by clicking on chart
 bindRectsClickHandler = function() {
-    barChart.contentDocument.querySelectorAll('rect').forEach(function(rect) {
+    barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
         rect.addEventListener('click', function() {
 
             // date type is year
             if (document.getElementById('date-type').value == 'year') {
                 // plot new markers if different year selected
                 if (year != window.yearClickedBarChart) {
+                    // update year
+                    year = window.yearClickedBarChart;
                     // update date val with year clicked, window.yearClickedBarChart from passYearParent in barChart.js
-                    document.getElementById('date-val').value = window.yearClickedBarChart;
+                    document.getElementById('date-year').value = year;
                     // plot markers for year selected
                     plotMarkersYear();
                 }
@@ -382,7 +424,7 @@ bindRectsClickHandler = function() {
             } else {
                 // update fromDate, first day of year clicked
                 fromDate = '01/01/'+window.yearClickedBarChart;
-                document.getElementById('date-range-from').value = fromDate;
+                document.getElementById('date-custom-from').value = fromDate;
                 
                 // update toDate
                 // current year selected, toDate is today's date
@@ -393,7 +435,9 @@ bindRectsClickHandler = function() {
                 } else {
                     toDate = '12/31/'+window.yearClickedBarChart;
                 }
-                document.getElementById('date-range-to').value = fromDate;
+                document.getElementById('date-custom-to').value = toDate;
+
+                updateDatePickers();
 
                 // plot markers for year selected
                 plotMarkersCustomDate();
@@ -403,9 +447,9 @@ bindRectsClickHandler = function() {
 }
 
 barChart = window.frames['barChart'];
-barChart.onload = function() {
+barChart.addEventListener('load', function() {
     // bind handler for when rects clicked
     bindRectsClickHandler();
     // rebind click handler to rects when series selected changes
-    barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
-}
+    barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);    
+})

@@ -34,27 +34,29 @@
 <body>
     <div id="top">
         <h1>Shootings in Wilminton, DE</h1>
-        <div id="container-date">
-            <select id="date-type">
-                <option value="year">Year</option>
-                <option value="custom">Custom</option>
-            </select>
-            <select id='date-val'>
-            	<option value="2011">2011</option>
-            	<option value="2012">2012</option>
-            	<option value="2013">2013</option>
-            	<option value="2014">2014</option>
-            	<option value="2015">2015</option>
-            	<option value="2016">2016</option>
-            	<option value="2017">2017</option>
-            	<option value="2018">2018</option>
-            	<option value="2019">2019</option>
-            	<option value="2020" selected="selected">2020</option>
-            </select>
-            <div id="date-range">
-                <input type="text" id="date-range-from" class="custom-date"/>
+        <div id="wrapper-date">
+            <div id="container-date">
+                <select id="date-type">
+                    <option value="year">Year</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <select id='date-year'>
+                    <option value="2011">2011</option>
+                    <option value="2012">2012</option>
+                    <option value="2013">2013</option>
+                    <option value="2014">2014</option>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020" selected="selected">2020</option>
+                </select>
+            </div>
+            <div id="date-custom">
+                <input type="text" id="date-custom-from"/>
                 <span>&nbsp;-&nbsp;</span>
-                <input type="text" id="date-range-to" class="custom-date"/>
+                <input type="text" id="date-custom-to"/>
             </div>
         </div>
     </div>
