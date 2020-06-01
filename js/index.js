@@ -429,60 +429,67 @@ function defaultSidePanel() {
 }
 map.on('click', defaultSidePanel);
 
-//////////////////
-/// BAR CHART ////
-//////////////////
+/////////////////////////////////////
+/// BAR CHART RECT CLICK HANDLER ////
+/////////////////////////////////////
 
-// change year by clicking on chart
-bindRectsClickHandler = function() {
-    barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
-        rect.addEventListener('click', function() {
+// only larger devices have bar chart
+if (window.outerWidth >= 800) {
 
-            // date type is year
-            if (document.getElementById('date-type').value == 'year') {
-                // plot new markers if different year selected
-                if (year != window.yearClickedBarChart) {
-                    // update year
-                    year = window.yearClickedBarChart;
-                    // update date val with year clicked, window.yearClickedBarChart from passYearParent in barChart.js
-                    document.getElementById('date-year').value = year;
-                    // plot markers for year selected
-                    plotMarkersYear();
-                }
+    // rect click handler, change year when rect clicked
+    bindRectsClickHandler = function() {
+        barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
+            rect.addEventListener('click', function() {
 
-            // date type is custom
-            } else {
-                // update fromDate, first day of year clicked
-                fromDate = '01/01/'+window.yearClickedBarChart;
-                document.getElementById('date-custom-from').value = fromDate;
-                
-                // update toDate
-                // current year selected, toDate is today's date
-                if (window.yearClickedBarChart == yearCurrent) {
-                    today = new Date();
-                    toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
-                // previous year selected, toDate is last day of previous year
+                // date type is year
+                if (document.getElementById('date-type').value == 'year') {
+                    // plot new markers if different year selected
+                    if (year != window.yearClickedBarChart) {
+                        // update year
+                        year = window.yearClickedBarChart;
+                        // update date val with year clicked, window.yearClickedBarChart from passYearParent in barChart.js
+                        document.getElementById('date-year').value = year;
+                        // plot markers for year selected
+                        plotMarkersYear();
+                    }
+
+                // date type is custom
                 } else {
-                    toDate = '12/31/'+window.yearClickedBarChart;
+                    // update fromDate, first day of year clicked
+                    fromDate = '01/01/'+window.yearClickedBarChart;
+                    document.getElementById('date-custom-from').value = fromDate;
+                    
+                    // update toDate
+                    // current year selected, toDate is today's date
+                    if (window.yearClickedBarChart == yearCurrent) {
+                        today = new Date();
+                        toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
+                    // previous year selected, toDate is last day of previous year
+                    } else {
+                        toDate = '12/31/'+window.yearClickedBarChart;
+                    }
+                    document.getElementById('date-custom-to').value = toDate;
+
+                    updateDatePickers();
+
+                    // plot markers for year selected
+                    plotMarkersCustomDate();
                 }
-                document.getElementById('date-custom-to').value = toDate;
-
-                updateDatePickers();
-
-                // plot markers for year selected
-                plotMarkersCustomDate();
-            }
+            })
         })
-    })
+    }
+    
+    function plotBarChart() {
+        if (window.innerWidth >= 800) {
+            const barChart = window.frames['barChart'];
+            barChart.src = 'barChart.html';
+            barChart.addEventListener('load', function() {
+                bindRectsClickHandler();
+                barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
+            })
+            window.removeEventListener('resize', plotBarChart);
+        }
+    }
+    plotBarChart();
+    window.addEventListener('resize', plotBarChart);
 }
-
-// bind handlers to rect click events
-// window load event and setTimeout used to ensure rects are selected
-// when iframe load event is used the rects don't get selected sometimes
-window.addEventListener('load', function() {
-    setTimeout(function() {
-        barChart = window.frames['barChart'];
-        bindRectsClickHandler();
-        barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
-    }, 100)
-})
