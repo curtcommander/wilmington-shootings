@@ -297,12 +297,19 @@ function dateTypeChangeHandler() {
             heightYear = window.getComputedStyle(document.getElementById('map')).getPropertyValue('height');
             heightDateCustom = parseFloat(window.getComputedStyle(document.getElementById('date-custom')).getPropertyValue('height'));
             heightCustom = parseFloat(heightYear) - heightDateCustom + 'px';
+            oldBarChartTop = parseFloat(window.getComputedStyle(document.getElementById('barChart')).getPropertyValue('top'));
         }
 
         // adjust heights of map and side panel
         document.getElementById('map').style.height = heightCustom;
         document.getElementById('side-panel').style.height = heightCustom;
 
+        // vertically center bar chart
+        const barChart = document.getElementById('barChart');
+        if (barChart) {
+            barChart.style.top = oldBarChartTop - (heightDateCustom/2) + 'px';
+        }
+        
         // update year for datepickers
         document.getElementById('date-custom-from').value = '1/1/'+year;
         if (year == yearCurrent) {
@@ -318,11 +325,19 @@ function dateTypeChangeHandler() {
         // show #date-year
         const dateYear = document.getElementById('date-year');
         dateYear.style.display = 'unset';
+
         // hide #date-custom
         document.getElementById('date-custom').style.display = 'none';
+
         // adjust heights of map and side panel (heightYear set below)
         document.getElementById('map').style.height = heightYear;
         document.getElementById('side-panel').style.height = heightYear;
+
+        // vertically center bar chart
+        const barChart = document.getElementById('barChart');
+        if (barChart) {
+            barChart.style.top = oldBarChartTop + 'px';
+        }
 
         // update year from #date-custom-from and plot markers
         year = document.getElementById('date-custom-from').value.substring(6);
@@ -484,8 +499,10 @@ if (window.outerWidth >= 800) {
             const barChart = window.frames['barChart'];
             barChart.src = 'barChart.html';
             barChart.addEventListener('load', function() {
-                bindRectsClickHandler();
-                barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
+                setTimeout(function() {
+                    bindRectsClickHandler();
+                    barChart.contentDocument.querySelector('#select-series').addEventListener('change', bindRectsClickHandler);
+                }, 200);
             })
             window.removeEventListener('resize', plotBarChart);
         }

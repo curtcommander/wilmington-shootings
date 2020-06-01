@@ -21,7 +21,7 @@ body {
 }
 
 h1 {
-    padding: 2vmin 2vmin;
+    padding: 2vmin;
     margin: 0;
     background-color: black;
     color: white;
@@ -169,7 +169,7 @@ table {
 #side-panel-default>p {
     margin: 0;
     text-align: center;
-    font-size: 4vmin;
+    font-size: 18px;
 }
 
 #side-panel-default>p:first-child {
@@ -220,7 +220,7 @@ table {
     iframe {
         display: unset;
         position: absolute;
-        top: calc((100vh - 137px - 50vh)/2 + 30px);
+        top: calc((100vh - 136px - 50vh)/2 + 30px);
         width: 380px;
         height: 50vh;
         overflow: hidden;
