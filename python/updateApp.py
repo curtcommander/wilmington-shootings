@@ -50,7 +50,7 @@ while year <= year_current:
         html += '<option value="'+y+'" selected="selected">'+y+'</option>\nEND'
     year += 1
         
-select_element = "<select id='date-val'>\n"+html+"</select>"
+select_element = "<select id='date-year'>\n"+html+"</select>"
 
 # update select element in index.html
 with open(path_root + 'index.html', 'r+') as f:

@@ -11,12 +11,20 @@
     display: none;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     margin: 0;
+    height: 100%;
 }
 
 #wrapper-bar-chart { 
-    padding: 4vh 0;
+    display: inline-block;
+    position: absolute; 
+    top: 50%; 
+    transform: translateY(-50%);
 }
 
 #container-select-series {
@@ -41,8 +49,13 @@ body {
 }
 
 #svg-bar-chart {
-    height: 72vh;
-    width: 100%;
+    height: 70vh;
+    margin: 2.5vw;
+    display: block;
+}
+
+#svg-legend {
+    display: block;
 }
 
 /* year labels */

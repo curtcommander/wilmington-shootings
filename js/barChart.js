@@ -6,43 +6,40 @@
 // input is number signifying percent of vertical height 
 // e.g. a value of 50 signifies 50%
 function vh(v) {
-    const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-    return (v * h)/100;
+    return (v * window.innerHeight)/100;
 }
 
 // calculates number of pixels for given percent of viewport's width
 // works the same as vh
 function vw(v) {
-    const h = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    return (v * h)/100;
+    return (v * window.innerWidth)/100;
 }
 
-// margins for bar chart
-const margin = vh(3);
-
-// initialize bar chart SVG and its container
-// container used for setting bar chart's margins
-const barChartContainer = d3
-    .select('#svg-bar-chart')
-    
-const barChart = barChartContainer
-    .append('g')
-    .attr('id', 'svg-bar-chart-inner')
-    .attr('transform', 'translate(' + margin + ',' + margin + ')');
-    
-// y scale
+// variables for dimensions of SVGs
 const svgBarChartStyles = window.getComputedStyle(document.getElementById('svg-bar-chart'));
-const heightBarChart = parseFloat(svgBarChartStyles.getPropertyValue('height')) - margin*2 
-                       - (6 + .71*vh(3)) // approximate height of x-axis
+// margin used in both bar chart and legend
+const margin = parseFloat(svgBarChartStyles.getPropertyValue('margin'));
+const widthSVG = window.innerWidth - (2*margin);
+const heightSVG = parseFloat(svgBarChartStyles.getPropertyValue('height'));
+// default font-size for em is 10px
+const heightXAxis = 0.71*10 + vh(3);
+const heightBars = heightSVG - heightXAxis;
+
+// initialize bar chart SVG
+const barChart = d3
+    .select('#svg-bar-chart')
+    .attr('viewBox', '0 0 ' + widthSVG + ' ' + heightSVG)
+
+// y scale
 const yMaxTotal = 197;
 const yMaxYTD = 90;
 
 const yScaleTotal = d3.scaleLinear()
-    .range([heightBarChart, 0])
+    .range([heightBars, 0])
     .domain([0, yMaxTotal])
 
 const yScaleYTD = d3.scaleLinear()
-    .range([heightBarChart, 0])
+    .range([heightBars, 0])
     .domain([0, yMaxYTD])
 
 const yAxis = barChart
@@ -50,7 +47,6 @@ const yAxis = barChart
     .attr('id', 'y-axis');
     
 // x scale
-const widthBarChart = parseFloat(svgBarChartStyles.getPropertyValue('width')) - margin*2;
 let years = [];
 const yearCurrent = 2020;
 let y = 2011;
@@ -61,17 +57,17 @@ while (y <= yearCurrent) {
 
 const xScale = d3
     .scaleBand()
-    .range([0, widthBarChart])
+    .range([0, widthSVG])
     .domain(years)
     .padding(0.2);
-
-const xBandwidth = xScale.bandwidth(); 
 
 const xAxis = barChart
     .append('g')
     .attr('id', 'x-axis')
-    .attr('transform', 'translate(0,'+ heightBarChart +')')
+    .attr('transform', 'translate(0,'+ heightBars + ')')
     .call(d3.axisBottom(xScale).tickSizeOuter(0));
+
+const xBandwidth = xScale.bandwidth(); 
 
 // bar chart colors
 const colors = ['black', '#D90022'];
@@ -128,9 +124,9 @@ function plotBarChart() {
                 // individual rects
                 .append('rect')
                 .attr('x', function(d,i) {return xScale(yearCurrent-i)})
-                .attr('y', function(d) {return yScale(d[1]-d[0]) + margin - margin})
+                .attr('y', function(d) {return yScale(d[1]-d[0])})
                 .attr('width', xBandwidth)
-                .attr('height', function(d) {return heightBarChart - yScale(d[1]-d[0])})
+                .attr('height', function(d) {return heightBars - yScale(d[1]-d[0])})
 }
 
 ////////////////////////////
@@ -236,7 +232,7 @@ function bindRectClickListeners() {
 //////////////
 
 const halfWidth = parseFloat(svgBarChartStyles.getPropertyValue('width'))/2;
-const incidentsTextWidth = vw(10);
+const incidentsTextWidth = vh(3)*5.15;
 
 // plot legend
 function getLegendRectX(i) {
@@ -250,7 +246,7 @@ function getLegendRectX(i) {
 function plotLegend() {
     // legend
     d3.select('#svg-legend')
-        .attr('height', margin)
+        .attr('viewBox', '0 0 '+ widthSVG + ' ' + margin)
         .selectAll('g')
         .data(colors)
         .enter()
@@ -308,7 +304,7 @@ function labelsLegend () {
         .append('text')
         .attr('class', 'label-legend')
         .text(function(d, i) {return getLegendLabelText(i)})
-        .attr('x', function(d,i) { return getLegendLabelX(i)})
+        .attr('x', function(d,i) {return getLegendLabelX(i)})
         .attr('y', margin/2)
         .attr('dy', '.35em')
         .attr('font-size', '1.2em')
