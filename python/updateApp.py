@@ -56,7 +56,7 @@ select_element = "<select id='date-val'>\n"+html+"</select>"
 with open(path_root + 'index.html', 'r+') as f:
     index = f.read()
     # get old select element
-    select_element_old = re.search('<select[^(date-type)]*?id= *["\']date-val["\'].*?</select>', index, re.DOTALL).group(0)
+    select_element_old = re.search('<select[^(date-type)]*?id= *["\']date-year["\'].*?</select>', index, re.DOTALL).group(0)
     # whitespace for new select element
     whitespace = re.search('(?<=\n).*?(?='+ select_element_old+')', index).group(0)+ '\t'
     select_element = select_element.replace('\n', '\n' + whitespace)
