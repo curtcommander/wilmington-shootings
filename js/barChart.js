@@ -235,7 +235,7 @@ function bindRectClickListeners() {
 /// LEGEND ///
 //////////////
 
-const halfWidth = parseFloat(window.getComputedStyle(document.getElementById('svg-bar-chart')).getPropertyValue('width'))/2;
+const halfWidth = parseFloat(svgBarChartStyles.getPropertyValue('width'))/2;
 const incidentsTextWidth = vw(10);
 
 // plot legend
