@@ -523,3 +523,21 @@ if (window.outerWidth >= 800) {
     plotBarChart();
     window.addEventListener('resize', plotBarChart);
 }
+
+////////////////////////////////
+/// ADJUST SIDE PANEL HEIGHT ///
+////////////////////////////////
+
+// side panel height fills to bottom of viewport for app's mobile layout
+function sidePanelFillToBottom() {
+    if (window.innerWidth < 800) {
+        const heightSidePanel = window.innerHeight
+        - parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'))
+        - parseFloat(window.getComputedStyle(mapElement).getPropertyValue('height'));
+        sidePanel.style.height = heightSidePanel+'px';
+    } else {
+        sidePanel.style.height = (window.innerHeight - 137) + 'px';
+    }
+}
+window.addEventListener('load', sidePanelFillToBottom);
+window.addEventListener('resize', sidePanelFillToBottom);
