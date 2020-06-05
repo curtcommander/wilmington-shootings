@@ -22,6 +22,7 @@ body {
 
 #wrapper-bar-chart { 
     display: inline-block;
+    width: 100%;
     position: absolute; 
     top: 50%; 
     transform: translateY(-50%);
@@ -50,7 +51,8 @@ body {
 
 #svg-bar-chart {
     height: 70vh;
-    margin: 2.5vw;
+    width: calc(100% - 5vw);
+    margin: 10px;
     display: block;
 }
 
@@ -60,7 +62,7 @@ body {
 
 /* year labels */
 .tick text {
-    font-size: 3vh;
+    font-size: min(2.5vw, 14px);
 }
 
 #svg-legend {
