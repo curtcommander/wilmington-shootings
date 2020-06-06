@@ -2,14 +2,14 @@
 /// BAR CHART SETUP ///
 ///////////////////////
 
-// calculates number of pixels for given percent of viewport's height
+// calculates number of pixels for given percent of window's inner height
 // input is number signifying percent of vertical height 
 // e.g. a value of 50 signifies 50%
 function vh(v) {
     return (v * window.innerHeight)/100;
 }
 
-// calculates number of pixels for given percent of viewport's width
+// calculates number of pixels for given percent of window's inner width
 // works the same as vh
 function vw(v) {
     return (v * window.innerWidth)/100;
@@ -18,22 +18,10 @@ function vw(v) {
 // bar chart colors
 const colors = ['black', '#D90022'];
 
-// initialize bar chart
-const barChartD3 = d3.select('#svg-bar-chart')
+// main bar chart variable
+const barChartD3 = d3.select('#svg-bar-chart');
 
-// variables for dimensions of SVGs
-const barChartSVG = barChartD3.node();
-const heightXAxis = 0.71*10 + Math.min(vw(2.5), 14);
-
-function resetDimVars() {
-    barChartSVGStyles = window.getComputedStyle(barChartSVG);
-    marginSVG = parseFloat(barChartSVGStyles.getPropertyValue('margin'));
-    widthSVG = window.innerWidth - (2*marginSVG);
-    heightSVG = parseFloat(barChartSVGStyles.getPropertyValue('height'));
-    heightBars = heightSVG - heightXAxis;
-}
-
-// x scale
+// x-scale
 let years = [];
 const yearCurrent = 2020;
 let y = 2011;
@@ -52,14 +40,16 @@ xAxis = barChartD3
     .attr('id', 'x-axis')
     .attr('class', 'axis')
 
-// y scale
+// y-scale
 const yMaxTotal = 197;
 const yMaxYTD = 90;
 
-yScaleTotal = d3.scaleLinear()
+yScaleTotal = d3
+    .scaleLinear()
     .domain([0, yMaxTotal])
 
-yScaleYTD = d3.scaleLinear()
+yScaleYTD = d3
+    .scaleLinear()
     .domain([0, yMaxYTD])
 
 yAxis = barChartD3
@@ -67,24 +57,39 @@ yAxis = barChartD3
     .attr('id', 'y-axis')
     .attr('class', 'axis');
 
-function resetAxes() {
-    // x axis
-    xScale.range([0, widthSVG])
-    xAxis
-      .attr('transform', 'translate(0,'+ heightBars + ')')
-      .call(d3.axisBottom(xScale).tickSizeOuter(0))
+//////////////////////////////////
+/// RESET BAR CHART DIMENSIONS ///
+//////////////////////////////////
 
+// variables for dimensions of SVGs
+const barChartSVG = barChartD3.node();
+
+function resetBarChartDimVars() {
+    const barChartSVGStyles = window.getComputedStyle(barChartSVG);
+    marginSVG = parseFloat(barChartSVGStyles.getPropertyValue('margin'));
+    widthSVG = window.innerWidth - (2*marginSVG);
+    heightSVG = parseFloat(barChartSVGStyles.getPropertyValue('height'));
+    const heightXAxis = 0.71*10 + Math.min(vw(2.5), 14);
+    heightBars = heightSVG - heightXAxis;
+}
+
+function resetBarChartAxes() {
+    // x-axis
+    xScale.range([0, widthSVG]);
     xBandwidth = xScale.bandwidth();
+    xAxis
+        .attr('transform', 'translate(0,'+ heightBars + ')')
+        .call(d3.axisBottom(xScale).tickSizeOuter(0));
 
-    // y axis (y-scale is series-dependent and set by setSeriesVars)
+    // y-axis (y-scale is series-dependent and set by setSeriesVars)
     yScaleTotal.range([heightBars, 0]);
     yScaleYTD.range([heightBars, 0]);
 }
 
-function resetDims() {
-    resetDimVars();    
+function resetBarChartDims() {
+    resetBarChartDimVars();
     barChartD3.attr('viewBox', '0 0 ' + widthSVG + ' ' + heightSVG)
-    resetAxes();
+    resetBarChartAxes();
 }
 
 ////////////////////////////
@@ -97,66 +102,63 @@ function resetDims() {
 function setSeriesVars() {
     // seriesNum 
     seriesNum = document.getElementById('select-series').value;
-    
+
     // yScale
-    if (seriesNum < 2) {
-        yScale = yScaleTotal;
-    }
-    else {
-        yScale = yScaleYTD;
-    }
+    (seriesNum < 2) ? yScale = yScaleTotal :  yScale = yScaleYTD;
 
     // dataSeries
     dataSeries = d3.stack().keys(seriesNames[seriesNum])(data);
 }   
 
-//////////////////////
-/// PLOT BAR CHART ///
-//////////////////////
+///////////////////////
+/// BAR CHART RECTS ///
+///////////////////////
 
+// rects structure
+barChartD3
+    // rects container
+    .append('g')
+    .attr('id', 'rects-bar-chart')
+    .selectAll('g').data(colors).enter()
+        // rect groups
+        .append('g')
+        .attr('id', function(d) {return 'rects-bar-chart-' + colors[d]})
+        .attr('fill', function(d,i) {return colors[i]})    
+        .selectAll('rect').data(function(d) {return d}).enter()
 
 function plotBarChart() {
     // clear old rects
-    const rectsBarChart = document.getElementById('rects-bar-chart');
-    if (rectsBarChart) {
-        rectsBarChart.parentNode.removeChild(rectsBarChart);
-    }
+    d3.selectAll('#rects-bar-chart rect').remove();
 
     // plot new rects
-    barChartD3
-    // all rects
-    .append('g')
-    .attr('id', 'rects-bar-chart')
-    .selectAll('g')
-    .data(dataSeries)
-    .enter()
-        // black and red rect groups
-        .append('g')
-        .attr('id', function(d,i) {return 'rects-bar-chart-' + colors[i]})
-        .attr('fill', function(d,i) {return colors[i]})    
-        .selectAll('rect')
-        .data(function(d) {return d})
-        .enter()
-            // individual rects
-            .append('rect')
-            .attr('x', function(d,i) {return xScale(yearCurrent-i)})
-            .attr('y', function(d) {return yScale(d[1]-d[0])})
-            .attr('width', xBandwidth)
-            .attr('height', function(d) {return heightBars - yScale(d[1]-d[0])})
+    for (let j=0; j<colors.length; j++) {
+        d3.select('#rects-bar-chart g:nth-child('+(j+1)+')')
+            .selectAll('rect').data(dataSeries[j]).enter()
+                .append('rect')
+                .attr('x', function(d,i) {return xScale(yearCurrent-i)})
+                .attr('y', function(d) {return yScale(d[1]-d[0])})
+                .attr('width', xBandwidth)
+                .attr('height', function(d) {return heightBars - yScale(d[1]-d[0])})
+    }
 }
 
-////////////////////////////
-/// LABELS FOR BAR CHART ///
-////////////////////////////
+////////////////////////
+/// BAR CHART LABELS ///
+////////////////////////
+
+// labels structure
+barChartD3
+    // labels container
+    .append('g')
+    .attr('id', 'labels-bar-chart')
+    .selectAll('g').data(colors).enter()
+        // label groups
+        .append('g')
+        .attr('id', function(d) {return 'labels-bar-chart-' + colors[d]})
 
 function getLabelText(d) {
     // get h, a measure of the relative height of the rect being labeled
-    if (seriesNum < 2) {
-        yMax = yMaxTotal;
-    }
-    else {
-        yMax = yMaxYTD;
-    }
+    (seriesNum < 2) ? yMax = yMaxTotal : yMax = yMaxYTD;
     h = (d[1]-d[0])/yMax;
 
     // height of rect is too small, set rect's label as empty string
@@ -170,36 +172,18 @@ function getLabelText(d) {
 
 function labelsBarChart() {
     // clear old labels
-    const labels = document.querySelector('#labels-bar-chart');
-    
-    if (labels) {
-        labels.parentNode.removeChild(labels);
-    }
+    d3.selectAll('.label-bar-chart').remove();
 
-    // add new labels
-    barChartD3
-        // all labels
-        .append('g')
-        .attr('id', 'labels-bar-chart')
-        .selectAll('g')
-        .data(dataSeries)
-        .enter()
-            // labels for black and red rect groups
-            .append('g')
-            .attr('id', function(d,i) {return 'labels-bar-chart-' + colors[i]})
-            .selectAll('text')
-            .data(function(d) {return d})
-            .enter()
-                // individual labels
+    // plot new labels
+    for (let j=0; j<colors.length; j++) {
+        d3.select('#labels-bar-chart g:nth-child('+(j+1)+')')
+            .selectAll('rect').data(dataSeries[j]).enter()
                 .append('text')
                 .attr('class', 'label-bar-chart')
                 .attr('x', function(d,i) {return xScale(yearCurrent-i) + xBandwidth/2})
                 .attr('y', function(d) {return yScale(d[1]-d[0]) + Math.min(vw(3), 12)})
                 .text(function(d) {return getLabelText(d)})
-                .attr('text-anchor', 'middle')
-                .attr('fill', 'white')
-                .attr('pointer-events', 'none')
-                .style('font-size', 'min(2.5vw, 14px)')
+    }
 }
 
 ///////////////////////
@@ -216,8 +200,8 @@ function getRectBlack(rect) {
 }
 
 function rectMouseenter(rect) {
-    rectBlack = getRectBlack(rect);
-    h = Number(rectBlack.attr('height'));
+    const rectBlack = getRectBlack(rect);
+    const h = Number(rectBlack.attr('height'));
     rectBlack.attr('stroke', 'black');
     rectBlack.attr('stroke-width', '1.5vh');
     rectBlack.attr('stroke-opacity', '0.4');
@@ -225,12 +209,12 @@ function rectMouseenter(rect) {
 }
 
 function rectMouseout(rect) {
-    rectBlack = getRectBlack(rect);
+    const rectBlack = getRectBlack(rect);
     rectBlack.attr('stroke-width', '0');
 }
 
 function bindRectHoverListeners () {
-    rects = document.querySelectorAll('#svg-bar-chart rect');
+    const rects = document.querySelectorAll('#rects-bar-chart rect');
     rects.forEach(function(rect) {
         rect.addEventListener('mouseover', function() {rectMouseenter(rect)});
         rect.addEventListener('mouseout', function() {rectMouseout(rect)});
@@ -239,7 +223,7 @@ function bindRectHoverListeners () {
 
 // pass rect's corresponding year to parent document on click
 function bindRectClickListeners() {
-    d3.selectAll( 'rect' ).on('click', function(d) {
+    d3.selectAll( '#rects-bar-chart rect' ).on('click', function(d) {
         window.top.yearClickedBarChart = d.data.year;
     });
 }
@@ -248,49 +232,50 @@ function bindRectClickListeners() {
 /// LEGEND ///
 //////////////
 
+// legend structure
+legendD3 = d3.select('#svg-legend');
+
+legendD3.selectAll('g').data(colors).enter()
+    .append('g')
+    .attr('id', function (d,i) {return 'legend-entry-'+colors[i]})
+    .attr('class', 'legend-entry')
+
+// reset variables for legend dimensions
+function resetLegendDimVars() {   
+    incidentsTextWidth = Math.min(vw(2.5),14)*7; 
+    halfWidth = parseFloat(window.getComputedStyle(barChartSVG).getPropertyValue('width'))/2;
+}
+
+// reset height and width of legend svg
+function resetLegendDims() {
+    resetLegendDimVars();
+    legendD3
+        .attr('width', widthSVG)
+        .attr('height', marginSVG)
+}
+
 // plot legend
 function getLegendRectX(i) {
     switch(i) {
-        case 0: return halfWidth - marginSVG*2.5 - incidentsTextWidth;
+        case 0: return halfWidth - (2.5*marginSVG) - incidentsTextWidth;
         case 1: return halfWidth + marginSVG;
     }
 }
 
-legendD3 = d3.select('#svg-legend');
-
-// labels added separately in labelsLegend
+// plot legend rects, labels added separately in labelsLegend
 function plotLegend() {
-    
-    halfWidth = parseFloat(window.getComputedStyle(barChartSVG).getPropertyValue('width'))/2;
-    incidentsTextWidth = Math.min(vw(2.5),14)*7;
-
     // remove old rects
-    legendEntries = legendD3.node().querySelectorAll('.legend-entry');
-    if (legendEntries.length > 0) {
-        legendEntries.forEach(function(legendEntry) {
-            legendEntry.parentNode.removeChild(legendEntry);
-        })
-    }
-
-    legendD3
-    // legend
-        .attr('width', widthSVG)
-        .attr('height', marginSVG + 3)
-        .selectAll('g')
-        .data(colors)
-        .enter()
-            // legend entries 
-            .append('g')
-            .attr('id', function (d,i) {return 'legend-entry-'+colors[i]})
-            .attr('class', 'legend-entry')
-            .attr('font-size', 'min(2.5vw, 14px)')
-                // legend rects
-                .append('rect')
-                .attr('class', 'rect-legend')
-                .attr('x', function(d,i) {return getLegendRectX(i)})
-                .attr('width', marginSVG)
-                .attr('height', marginSVG)
-                .style('fill', function(d, i) {return colors[i]})
+    d3.selectAll('.rect-legend').remove();
+    
+    // plot new rects
+    d3.selectAll('.legend-entry')
+        // legend rects
+        .append('rect')
+        .attr('class', 'rect-legend')
+        .attr('x', function(d,i) {return getLegendRectX(i)})
+        .attr('width', marginSVG)
+        .attr('height', marginSVG)
+        .attr('fill', function(d, i) {return colors[i]})
 }
 
 // legend labels
@@ -322,12 +307,7 @@ function labelsLegend () {
     }
 
     // clear old labels
-    const labels = document.querySelectorAll('.label-legend');
-    if (labels) {
-        labels.forEach(function(label) {
-            label.parentNode.removeChild(label);
-        })
-    }
+    d3.selectAll('.label-legend').remove();
     
     // add new labels
     d3.selectAll('.legend-entry')
@@ -337,7 +317,6 @@ function labelsLegend () {
         .attr('x', function(d,i) {return getLegendLabelX(i)})
         .attr('y', marginSVG/2)
         .attr('dy', '.35em')
-        .attr('font-size', '1.2em')
 }
 
 /////////////////////////////////////
@@ -347,24 +326,20 @@ function labelsLegend () {
 // master function to build bar chart after data is read in
 // also called when series selected changes 
 function buildBarChart() {
-    resetDims();
+    resetBarChartDims();
     setSeriesVars();
     plotBarChart();
     labelsBarChart();
     bindRectHoverListeners();
     bindRectClickListeners();
 }
-window.addEventListener('resize', function() {
-    if (window.innerWidth >= 300) {
-        resetDims();
-        plotBarChart();
-        labelsBarChart();
-        bindRectHoverListeners();
-        bindRectClickListeners();
-        plotLegend();
-        labelsLegend();
-    }
-});
+
+// master function to build legend
+function buildLegend() {
+    resetLegendDims();
+    plotLegend();
+    labelsLegend();
+}
 
 // read in data
 d3.csv('data/yearlyData.csv')
@@ -379,20 +354,34 @@ d3.csv('data/yearlyData.csv')
         data.columns.slice(7,9)
     ];
     buildBarChart();
-    // plotLegend only needs to be called once
-    // (not called when series selected changes)
-    plotLegend();
-    labelsLegend();
+    buildLegend();
 })
 
-/////////////////////
-/// SERIES CHANGE ///
-/////////////////////
+///////////////////////////////
+/// REPLOT ON SERIES CHANGE ///
+///////////////////////////////
 
 // handler for series change
 function handlerChangeSeries() {
     buildBarChart();
-    // only labels in the legend change with series selected
+    // only labels in the legend change with series selected, buildLegend not called
     labelsLegend();
 }
 document.getElementById('select-series').addEventListener('change', handlerChangeSeries);
+
+////////////////////////////////////
+/// REDRAW SVGS ON WINDOW RESIZE ///
+////////////////////////////////////
+
+function redrawSVG() {
+    if (window.innerWidth >= 300) {
+        // series vars don't need to be set, buildBarChart not called
+        resetBarChartDims();
+        plotBarChart();
+        labelsBarChart();
+        bindRectHoverListeners();
+        bindRectClickListeners();
+        buildLegend();
+    }
+}
+window.addEventListener('resize', redrawSVG);

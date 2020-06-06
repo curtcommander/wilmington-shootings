@@ -56,8 +56,19 @@ body {
     display: block;
 }
 
+.label-bar-chart {
+    text-anchor: middle;
+    fill: white;
+    pointer-events: none;
+    font-size: min(2.5vw, 14px);
+}
+
 #svg-legend {
     display: block;
+}
+
+.label-legend {
+    font-size: min(2.5vw, 14px);
 }
 
 /* year labels */
