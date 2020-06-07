@@ -69,7 +69,9 @@ function resetBarChartDimVars() {
     marginSVG = parseFloat(barChartSVGStyles.getPropertyValue('margin'));
     widthSVG = window.innerWidth - (2*marginSVG);
     heightSVG = parseFloat(barChartSVGStyles.getPropertyValue('height'));
-    const heightXAxis = 0.71*10 + Math.min(vw(2.5), 14);
+    // make sure fontSize matches --font-size in barChart.css
+    fontSize = Math.min(vw(2.5), 14);
+    const heightXAxis = 0.71*10 + fontSize;
     heightBars = heightSVG - heightXAxis;
 }
 
@@ -122,7 +124,7 @@ barChartD3
     .selectAll('g').data(colors).enter()
         // rect groups
         .append('g')
-        .attr('id', function(d) {return 'rects-bar-chart-' + colors[d]})
+        .attr('id', function(d) {return 'rects-bar-chart-'+d})
         .attr('fill', function(d,i) {return colors[i]})    
         .selectAll('rect').data(function(d) {return d}).enter()
 
@@ -154,7 +156,7 @@ barChartD3
     .selectAll('g').data(colors).enter()
         // label groups
         .append('g')
-        .attr('id', function(d) {return 'labels-bar-chart-' + colors[d]})
+        .attr('id', function(d) {return 'labels-bar-chart-'+d})
 
 function getLabelText(d) {
     // get h, a measure of the relative height of the rect being labeled
@@ -181,7 +183,7 @@ function labelsBarChart() {
                 .append('text')
                 .attr('class', 'label-bar-chart')
                 .attr('x', function(d,i) {return xScale(yearCurrent-i) + xBandwidth/2})
-                .attr('y', function(d) {return yScale(d[1]-d[0]) + Math.min(vw(3), 12)})
+                .attr('y', function(d) {return yScale(d[1]-d[0]) + fontSize})
                 .text(function(d) {return getLabelText(d)})
     }
 }
@@ -199,12 +201,13 @@ function getRectBlack(rect) {
     return d3.select('#rects-bar-chart-black rect[x="'+x+'"]');
 }
 
-function rectMouseenter(rect) {
+function rectMouseover(rect) {
     const rectBlack = getRectBlack(rect);
     const h = Number(rectBlack.attr('height'));
     rectBlack.attr('stroke', 'black');
     rectBlack.attr('stroke-width', '1.5vh');
     rectBlack.attr('stroke-opacity', '0.4');
+    // 0.1 and 0.2 fix issue with stroke lengths not aligning
     rectBlack.attr('stroke-dasharray', (xBandwidth+h-0.1) + ' ' + (xBandwidth+0.2))
 }
 
@@ -216,7 +219,7 @@ function rectMouseout(rect) {
 function bindRectHoverListeners () {
     const rects = document.querySelectorAll('#rects-bar-chart rect');
     rects.forEach(function(rect) {
-        rect.addEventListener('mouseover', function() {rectMouseenter(rect)});
+        rect.addEventListener('mouseover', function() {rectMouseover(rect)});
         rect.addEventListener('mouseout', function() {rectMouseout(rect)});
     })
 }
@@ -242,8 +245,10 @@ legendD3.selectAll('g').data(colors).enter()
 
 // reset variables for legend dimensions
 function resetLegendDimVars() {   
-    incidentsTextWidth = Math.min(vw(2.5),14)*7; 
+    incidentsTextWidth = fontSize*6;
     halfWidth = parseFloat(window.getComputedStyle(barChartSVG).getPropertyValue('width'))/2;
+    // halfWidth is sometimes set as NaN when bar chart display is none
+    if (isNaN(halfWidth)) {halfWidth = 0};
 }
 
 // reset height and width of legend svg
@@ -282,7 +287,7 @@ function plotLegend() {
 function getLegendLabelX(i) {
     switch(i) {
         case 0: return halfWidth - marginSVG - incidentsTextWidth;
-        case 1: return halfWidth + marginSVG*2.5;
+        case 1: return halfWidth + (2.5*marginSVG);
     }
 }
 
