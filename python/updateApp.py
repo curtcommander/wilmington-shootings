@@ -65,6 +65,7 @@ with open(path_root + 'index.html', 'r+') as f:
     index = index.replace(select_element_old, select_element)
     f.seek(0)
     f.write(index)
+    f.truncate()
     
 ##########################################
 ### update barChart.js/barChart.min.js ###
@@ -102,3 +103,4 @@ for file in files:
             
             f.seek(0)
             f.write(js)
+            f.truncate()
