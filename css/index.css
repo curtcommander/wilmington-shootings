@@ -16,9 +16,9 @@ body {
     margin: 0;
 }
 
-#top {
-    width: 100%;
-}
+/*///////////*/
+/*/// TOP ///*/
+/*///////////*/
 
 h1 {
     padding: 2vmin;
@@ -26,47 +26,36 @@ h1 {
     background-color: black;
     color: white;
     text-align: center;
-    font-weight: 700;
     font-size: 7.5vw;
 }
 
 #container-date {
-    box-sizing: content-box;
     padding-top: 6px;
     padding-bottom: 6px;
-    margin: auto;
     text-align: center;
     background-color: gray;
-    line-height: 0;
-}
-
-/* space between #date-type and #date-year */
-#date-type {
-    margin-right: 2.5px;
 }
 
 #date-type, #date-year {
-    font-weight: 500;
     font-size: 18px;
     border-style: none;
-    width: 35%;
+    width: min(45%, 150px);
     border-radius: 5px;
-    padding-left: 7px;
-    padding-right: 7px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    -moz-appearance: none;
+    padding: 3px 0px 3px 7px;
+    /* don't display default arrow icon */
     -webkit-appearance: none;
-    appearance: none;
+    -moz-appearance: none;
+    /* arrow icon for dropdown */
     background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQwOCAxMDg4cTAgMjYtMTkgNDVsLTQ0OCA0NDhxLTE5IDE5LTQ1IDE5dC00NS0xOWwtNDQ4LTQ0OHEtMTktMTktMTktNDV0MTktNDUgNDUtMTloODk2cTI2IDAgNDUgMTl0MTkgNDV6Ii8+PC9zdmc+'),
-	  linear-gradient(to bottom, white 0%,white 100%);
+	    linear-gradient(to bottom, white 0%,white 100%);
 	background-repeat: no-repeat, repeat;
 	background-position: right .3em top 25%, 0 0;
     background-size: .65em auto, 100%;
 }
 
-select::-ms-expand {
-    border: none;
+/* space between #date-type and #date-year */
+#date-type {
+    margin-right: 2.5px;
 }
 
 #date-custom {
@@ -77,29 +66,28 @@ select::-ms-expand {
     text-align: center;
 }
 
-#date-custom-from, #date-custom-to {
+#date-custom-from, #date-custom-to, .flatpickr-input {
     text-align: center;
     padding: 2px;
-    font-weight: 500;
     font-size: 18px;
     border-radius: 5px;
-    border: solid gray;
     border: none;
-    width: 35vmin;
+    width: min(45%, 150px);
+    background: white;
 }
 
-/*---MAIN---*/
+/*///////////*/
+/*/// MAP ///*/
+/*///////////*/
+
 #main {
     width: 100%; 
 }
 
-/*map*/
 #map {
     height: 50vh;
     width: 100%;
-    float: left; 
-    background-color: white;
-    z-index: 0;
+    position: relative;
 }
 
 .leaflet-control-attribution {
@@ -114,100 +102,104 @@ select::-ms-expand {
     fill: var(--color-selected);
 }
 
-/*shootings side-panels*/
+/*//////////////////*/
+/*/// SIDE PANEL ///*/
+/*//////////////////*/
+
 #side-panel {
     width: 100%;
-    float: left;
     padding: 0 10px 10px 10px;
     overflow: auto;
+}
+
+#side-panel-default > p {
+    margin: 0;
+    text-align: center;
+    font-size: 18px;
+}
+
+#side-panel-default > p:first-child {
+    margin: 10px 0 0;
 }
 
 iframe {
     display: none;
 }
 
-.incident_header>a, .incident_header {
+.incident {
+    font-size: min(4.5vmin, 16px);
+}
+
+.incident_header {
+    text-align: center;
+    pointer-events: none;
+    cursor: text;
+    margin: 10px 0 5px;
+}
+
+.incident_header > a {
     color: black;
     text-decoration: none;
     font-weight: 1000;
-    font-size: 6vmin;
+    font-size: min(6vmin, 26px);
     font-family: 'Roboto Condensed', sans-serif;
-    text-align: center;
-    pointer-events: none;
-    cursor: default;
-    text-align-last: center;
-    margin-bottom: 5px;
-    margin-top: 10px;
 }
 
-.label {
+.incident .datetime {
+    text-align: center;
+}
+
+.incident .datetime .label {
     padding-right: 20px;
 }
 
-.datetime {
-    font-weight: 500;
-    text-align: center;
-}
-
-hr {
+.incident hr {
     padding: 0.5px;
+    border: none;
     background-color: black;
+    height: 1.5px;
     margin-top: 5px;
 }
 
-#side-panel td {
+.incident table {
+    width: 100%!important;
+    margin: auto;
+}
+
+.incident td {
     text-align: center;
     padding: 0 10px;
-    width: 50% !important;
+    width: 50%!important;
 }
 
-table {
-    margin: auto;
-    width: 100% !important;
+.incident .td_left {
+    padding: 0 2.5px 0 5px;
 }
 
-#side-panel-default>p {
-    margin: 0;
-    text-align: center;
-    font-size: 18px;
+.incident td:not(.td_left) {
+    padding: 0 5px 0 2.5px!important;
 }
 
-#side-panel-default>p:first-child {
-    margin: 10px 0 0;
-}
+/*/////////////////////*/
+/*/// LARGE SCREENS ///*/
+/*/////////////////////*/
 
-.incident, .people_table {
-    font-size: 4.5vmin;
-}
-
-/* large screens */
 @media only screen and (min-width: 800px) {
     h1 {
         height: 100px;
+        font-size: 400%;
     }
-
-    #container-date {
-        padding-top: 6px;
-        padding-bottom: 6px;
-     }
     
     #date-type, #date-year {
         width: 150px;
-        padding-top: 1px;
-        padding-bottom: 1px;
-    }
-    
-    #date-custom {
-        padding-top : 6px;
-        padding-bottom : 6px;
     }
 
     #date-custom-from, #date-custom-to {
-        width: 20vmin;
+        width: 150px;
     }
 
     #map {
-        /*width: calc(100% - 400px);*/
+        float: left;
         width: max(60%, calc(100% - 400px));
         height: calc(100vh - 137px);
         min-height: 364px;
@@ -232,48 +224,21 @@ table {
         border-bottom: solid 2px gray;
         border-left: none;
         border-right: none;
-        background-color: white;
     }
 
     .leaflet-control-attribution {
-        font-size: 11px !important;
+        font-size: 11px!important;
     }
 
-    #side-panel-default>p {
+    #side-panel-default > p {
         font-size: 15px;
     }
 
-    h1 {
-        font-size: 400%;
-    }
-
-    .incident_header>a, .incident_header {
-        font-size: 4vmin;
-    }
-    
-    .incident, .people_table {
+    .incident {
         font-size: 16px;
     }
 
-    hr {
-        padding: 1px;
+    .incident_header > a {
+        font-size: 4vmin;
     }
 }
-
-
-/* adjustments for iPad */
-/*
-@media all and (device-width: 1024px) and (device-height: 768px) {
-    #date-type, #date-year {
-        width: 150px;
-  }
-}
-*/
-/* adjustments for iPad pro */
-/*
-@media all and (device-width: 1366px) and (device-height: 1024px) {
-    #date-type, #date-year {
-        width: 160px;
-    }
-}
-*/

@@ -245,7 +245,7 @@ legendD3.selectAll('g').data(colors).enter()
 
 // reset variables for legend dimensions
 function resetLegendDimVars() {   
-    incidentsTextWidth = fontSize*6;
+    incidentsTextWidth = fontSize*6.57;
     halfWidth = parseFloat(window.getComputedStyle(barChartSVG).getPropertyValue('width'))/2;
     // halfWidth is sometimes set as NaN when bar chart display is none
     if (isNaN(halfWidth)) {halfWidth = 0};
@@ -262,8 +262,8 @@ function resetLegendDims() {
 // plot legend
 function getLegendRectX(i) {
     switch(i) {
-        case 0: return halfWidth - (2.5*marginSVG) - incidentsTextWidth;
-        case 1: return halfWidth + marginSVG;
+        case 0: return halfWidth - incidentsTextWidth - marginSVG;
+        case 1: return halfWidth + (2*marginSVG);
     }
 }
 
@@ -286,8 +286,8 @@ function plotLegend() {
 // legend labels
 function getLegendLabelX(i) {
     switch(i) {
-        case 0: return halfWidth - marginSVG - incidentsTextWidth;
-        case 1: return halfWidth + (2.5*marginSVG);
+        case 0: return halfWidth - incidentsTextWidth + 0.5*marginSVG;
+        case 1: return halfWidth + (3.5*marginSVG);
     }
 }
 
