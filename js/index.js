@@ -467,8 +467,9 @@ map.on('click', defaultSidePanel);
 if (window.outerWidth >= 800) {
 
     // rect click handler, change year when rect clicked
-    bindRectsClickHandler = function() {
-        barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
+    function bindRectsClickHandler() {
+        rects = barChart.contentDocument.querySelectorAll('#svg-bar-chart rect');
+        rects.forEach(function(rect) {
             rect.addEventListener('click', function() {
 
                 // date type is year
@@ -489,7 +490,7 @@ if (window.outerWidth >= 800) {
                     fromDate = '01/01/'+window.yearClickedBarChart;
                     document.getElementById('date-custom-from').value = fromDate;
                     
-                    // update toDate
+                    // update date pickers
                     // current year selected, toDate is today's date
                     if (window.yearClickedBarChart == yearCurrent) {
                         toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
@@ -498,7 +499,6 @@ if (window.outerWidth >= 800) {
                         toDate = '12/31/'+window.yearClickedBarChart;
                     }
                     document.getElementById('date-custom-to').value = toDate;
-
                     updateDatePickers();
 
                     // plot markers for year selected
@@ -507,21 +507,17 @@ if (window.outerWidth >= 800) {
             })
         })
     }
-    
-    function plotBarChart() {
+
+    function newRectsHandler() {
         if (window.innerWidth >= 800) {
-            barChart.src = 'barChart.html';
-            barChart.addEventListener('load', function() {
-                setTimeout(function() {
-                    bindRectsClickHandler();
-                    barChart.contentDocument.getElementById('select-series').addEventListener('change', bindRectsClickHandler);
-                }, 200);
-            })
-            window.removeEventListener('resize', plotBarChart);
+            setTimeout(function() {
+                bindRectsClickHandler();
+                barChart.contentDocument.getElementById('select-series').addEventListener('change', bindRectsClickHandler);    
+            }, 200);
         }
     }
-    plotBarChart();
-    window.addEventListener('resize', plotBarChart);
+    barChart.addEventListener('load', newRectsHandler);
+    window.addEventListener('resize', newRectsHandler);
 }
 
 ////////////////////////////////
@@ -536,8 +532,9 @@ function sidePanelFillToBottom() {
         - parseFloat(window.getComputedStyle(mapElement).getPropertyValue('height'));
         sidePanel.style.height = heightSidePanel+'px';
     } else {
-        sidePanel.style.height = (window.innerHeight - 137) + 'px';
+        sidePanel.style.height = (window.innerHeight - 139) + 'px';
     }
 }
 window.addEventListener('load', sidePanelFillToBottom);
 window.addEventListener('resize', sidePanelFillToBottom);
+document.getElementById('date-type').addEventListener('change', sidePanelFillToBottom);
