@@ -3,15 +3,20 @@
     font-family: 'Roboto', sans-serif;
 }
 
-*:focus {
-    outline: none;
-}
-
 :root {
     --color-marker: #D90022;
     --color-selected: black;
 }
 
+:focus {
+    outline: none;
+}
+
+select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+}
+  
 body {
     margin: 0;
 }
@@ -21,12 +26,12 @@ body {
 /*///////////*/
 
 h1 {
-    padding: 2vmin;
+    padding: 10px;
     margin: 0;
     background-color: black;
     color: white;
     text-align: center;
-    font-size: 7.5vw;
+    font-size: 7vw;
 }
 
 #container-date {
@@ -34,6 +39,7 @@ h1 {
     padding-bottom: 6px;
     text-align: center;
     background-color: gray;
+    height: 39px;
 }
 
 /* don't display default arrow icon */
@@ -196,7 +202,8 @@ iframe {
 @media only screen and (min-width: 800px) {
     h1 {
         height: 100px;
-        font-size: 388%;
+        font-size: 62px;
+        line-height: 78px;
     }
     
     #date-type, #date-year {
@@ -210,7 +217,7 @@ iframe {
     #map {
         float: left;
         width: max(60%, calc(100% - 400px));
-        /*height: calc(100vh - 139px);*/
+        height: calc(100vh - 139px);
         min-height: 364px;
     }
 

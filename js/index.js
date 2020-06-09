@@ -271,6 +271,13 @@ const toDateOptions = {
     defaultDate: null
 }
 
+// iOS native datepicker doesn't support min and max dates
+const isIOS = (/iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+if (isIOS) {
+    fromDateOptions.disableMobile = true;
+    toDateOptions.disableMobile = true;
+}
+
 function updateDatePickers() {
     const fromDate = dateCustomFrom.value;
     const toDate = dateCustomTo.value;
@@ -521,3 +528,9 @@ if (window.outerWidth >= 800) {
     barChart.addEventListener('load', newRectsHandler);
     window.addEventListener('resize', newRectsHandler);
 }
+
+// reset date type and year when navigating back to page
+window.addEventListener('beforeunload', function() {
+    dateType.selectedIndex = 0;
+    dateYear.value = yearCurrent;
+})

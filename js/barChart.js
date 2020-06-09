@@ -66,9 +66,10 @@ const barChartSVG = barChartD3.node();
 
 function resetBarChartDimVars() {
     const barChartSVGStyles = window.getComputedStyle(barChartSVG);
-    marginSVG = parseFloat(barChartSVGStyles.getPropertyValue('margin'));
+    marginSVG = parseFloat(barChartSVGStyles.getPropertyValue('margin-top'));
     widthSVG = window.innerWidth - (2*marginSVG);
-    heightSVG = parseFloat(barChartSVGStyles.getPropertyValue('height'));
+    // give space for stroke when tallest rect is hovered over
+    heightSVG = parseFloat(barChartSVGStyles.getPropertyValue('height')) - vh(2);
     // make sure fontSize matches --font-size in barChart.css
     fontSize = Math.min(vw(2.5), 14);
     const heightXAxis = 0.71*10 + fontSize;
@@ -357,7 +358,7 @@ d3.csv('data/yearlyData.csv')
         data.columns.slice(3,5),
         data.columns.slice(5,7),
         data.columns.slice(7,9)
-    ];
+    ]
     if (window.innerWidth >= 300) {
         buildBarChart();
         buildLegend();
@@ -395,3 +396,8 @@ function redrawSVG() {
     }
 }
 window.addEventListener('resize', redrawSVG);
+
+// reset series to Incidents when navigating back to page
+window.addEventListener('beforeunload', function() {
+    document.getElementById('select-series').selectedIndex = 0;    
+})

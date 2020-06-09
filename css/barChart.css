@@ -2,16 +2,21 @@
     box-sizing: border-box;
 }
 
-*:focus {
+:root {
+    --font-size: min(2.5vw, 14px);
+}
+
+:focus {
     outline: none;
+}
+
+select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
 }
 
 ::-webkit-scrollbar {
     display: none;
-}
-
-:root {
-    --font-size: min(2.5vw, 14px);
 }
 
 body {
