@@ -257,6 +257,11 @@ dateCustomTo.addEventListener('change', plotMarkersCustomDate);
 /// DATE PICKERS ///
 ////////////////////
 
+// used to get today's date in format MM/DD/YYYY in toDateOptions
+Date.prototype.formatMMDDYYYY = function() {
+    return (this.getMonth()+1)+ "/"+this.getDate()+"/"+this.getFullYear();
+}
+
 const fromDateOptions = {
     dateFormat: 'm/d/Y',
     minDate: '01/01/2011',
@@ -267,15 +272,8 @@ const fromDateOptions = {
 const toDateOptions = {
     dateFormat: 'm/d/Y',
     minDate: null,
-    maxDate: 'today',
+    maxDate: (new Date()).formatMMDDYYYY(),
     defaultDate: null
-}
-
-// iOS native datepicker doesn't support min and max dates
-const isIOS = (/iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
-if (isIOS) {
-    fromDateOptions.disableMobile = true;
-    toDateOptions.disableMobile = true;
 }
 
 function updateDatePickers() {
@@ -293,19 +291,63 @@ function updateDatePickers() {
     flatpickr('#date-custom-to', toDateOptions)
 }
 
-// ensure min to date is from date
-dateCustomFrom.addEventListener('change', function() {
+function dateCustomFromChangeHandler() {
+    const fromDate = new Date(dateCustomFrom.value); 
+
+    // from date selected is less than min date 
+    if (fromDate < new Date(fromDateOptions.minDate)) {
+        // truncate from date to the minimum
+        dateCustomFrom.value = fromDateOptions.minDate;
+        dateCustomFrom.dispatchEvent(new Event('change'));
+        // set min date as default in from date datepicker
+        fromDateOptions.defaultDate = fromDateOptions.minDate;
+        flatpickr('#date-custom-from', fromDateOptions)
+    
+    // from date selected is greater than to date
+    } else if (fromDate > new Date(dateCustomTo.value)) {
+        // truncate from date to to date
+        dateCustomFrom.value = dateCustomTo.value;
+        fromDateOptions.defaultDate = dateCustomTo.value;
+        // set to date as default in from date datepicker
+        dateCustomFrom.dispatchEvent(new Event('change'));
+        flatpickr('#date-custom-from', fromDateOptions)
+    }
+
+    // update to date datepicker
     toDateOptions.minDate = dateCustomFrom.value;
     toDateOptions.defaultDate = dateCustomTo.value;
     flatpickr('#date-custom-to', toDateOptions)
-})
+}
+dateCustomFrom.addEventListener('change', dateCustomFromChangeHandler);
 
-// ensure max from date is to date
-dateCustomTo.addEventListener('change', function() {
+function dateCustomToChangeHandler() {
+    const toDate = new Date(dateCustomTo.value); 
+
+    // to date is less than from date
+    if (toDate < new Date(dateCustomFrom.value)) {
+        // truncate to date to from date
+        dateCustomTo.value = dateCustomFrom.value;
+        // set from date as default in to date datepicker
+        dateCustomTo.dispatchEvent(new Event('change'));
+        toDateOptions.defaultDate = dateCustomFrom.value;
+        flatpickr('#date-custom-to', toDateOptions);
+    
+    // to date is greater than max date
+    } else if (toDate > new Date(toDateOptions.maxDate)) {
+        // truncate to date to max date
+        dateCustomTo.value = toDateOptions.maxDate;
+        dateCustomTo.dispatchEvent(new Event('change'));
+        // set max date as default in to date datepicker
+        toDateOptions.defaultDate = toDateOptions.maxDate;
+        flatpickr('#date-custom-to', toDateOptions);
+    }
+
+    // update from date datepicker
     fromDateOptions.maxDate = dateCustomTo.value;
     fromDateOptions.defaultDate = dateCustomFrom.value;
     flatpickr('#date-custom-from', fromDateOptions)
-})
+}
+dateCustomTo.addEventListener('change', dateCustomToChangeHandler);
 
 //////////////////////////
 /// LAYOUT ADJUSTMENTS ///
