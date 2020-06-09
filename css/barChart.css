@@ -41,7 +41,7 @@ body {
     background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQwOCAxMDg4cTAgMjYtMTkgNDVsLTQ0OCA0NDhxLTE5IDE5LTQ1IDE5dC00NS0xOWwtNDQ4LTQ0OHEtMTktMTktMTktNDV0MTktNDUgNDUtMTloODk2cTI2IDAgNDUgMTl0MTkgNDV6Ii8+PC9zdmc+'),
         linear-gradient(to bottom, white 0%,white 100%);
     background-repeat: no-repeat, repeat;
-    background-position: right .3em top 25%, 0 0;
+    background-position: right .3em top 30%, 0 0;
     background-size: .65em auto, 100%;
 }
 

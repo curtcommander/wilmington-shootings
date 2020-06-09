@@ -261,7 +261,7 @@ const fromDateOptions = {
     dateFormat: 'm/d/Y',
     minDate: '01/01/2011',
     maxDate: null,
-    defaultDate: null,
+    defaultDate: null
 }
 
 const toDateOptions = {
@@ -300,6 +300,31 @@ dateCustomTo.addEventListener('change', function() {
     flatpickr('#date-custom-from', fromDateOptions)
 })
 
+//////////////////////////
+/// LAYOUT ADJUSTMENTS ///
+//////////////////////////
+
+function layoutAdjustments() {
+    if (window.innerWidth < 800) {
+        // fall back on map height being set to 50vh in css
+        mapElement.style.height = '';
+        // fill side panel to bottom
+        const heightTop = parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'));
+        const heightMap = parseFloat(window.getComputedStyle(mapElement).getPropertyValue('height'));
+        const heightSidePanel = window.innerHeight - heightTop - heightMap;
+        sidePanel.style.height = heightSidePanel+'px';
+
+    } else {
+        const heightTop = parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'));
+        const heightSidePanel = Math.max(window.innerHeight - heightTop, 364);
+        // map and side panel have same height
+        mapElement.style.height = heightSidePanel+'px';
+        sidePanel.style.height = heightSidePanel+'px';
+        // vertically center bar chart
+        barChart.style.top = (heightSidePanel - 64 - Math.max(window.innerHeight*0.5, 250))/2+'px'
+    }
+}
+window.addEventListener('resize', layoutAdjustments);
 
 ////////////////////////
 /// DATE TYPE CHANGE ///
@@ -314,23 +339,6 @@ function dateTypeChangeHandler() {
         dateYear.style.display = 'none';
         // show #date-custom
         dateCustom.style.display = 'block';
-
-        // get heights of map and side panel on first switch to custom date type
-        if (typeof(heightCustom) == 'undefined') {
-            heightYear = window.getComputedStyle(mapElement).getPropertyValue('height');
-            heightDateCustom = parseFloat(window.getComputedStyle(dateCustom).getPropertyValue('height'));
-            heightCustom = parseFloat(heightYear) - heightDateCustom + 'px';
-            oldBarChartTop = parseFloat(window.getComputedStyle(barChart).getPropertyValue('top'));
-        }
-
-        // adjust heights of map and side panel
-        mapElement.style.height = heightCustom;
-        sidePanel.style.height = heightCustom;
-
-        // vertically center bar chart
-        if (barChart) {
-            barChart.style.top = oldBarChartTop - (heightDateCustom/2) + 'px';
-        }
         
         // update year for datepickers
         dateCustomFrom.value = '1/1/'+year;
@@ -349,21 +357,15 @@ function dateTypeChangeHandler() {
         // hide #date-custom
         dateCustom.style.display = 'none';
 
-        // adjust heights of map and side panel (heightYear set below)
-        mapElement.style.height = heightYear;
-        sidePanel.style.height = heightYear;
-
-        // vertically center bar chart
-        if (barChart) {
-            barChart.style.top = oldBarChartTop + 'px';
-        }
-
         // update year from #date-custom-from and plot markers
         year = dateCustomFrom.value.substring(6);
         dateYear.value = year;
         // custom date range likely different from year range, replot markers
         plotMarkersYear();
     }
+
+    layoutAdjustments();
+
 }
 dateType.addEventListener('change', dateTypeChangeHandler);
 
@@ -519,22 +521,3 @@ if (window.outerWidth >= 800) {
     barChart.addEventListener('load', newRectsHandler);
     window.addEventListener('resize', newRectsHandler);
 }
-
-////////////////////////////////
-/// ADJUST SIDE PANEL HEIGHT ///
-////////////////////////////////
-
-// side panel height fills to bottom of viewport for app's mobile layout
-function sidePanelFillToBottom() {
-    if (window.innerWidth < 800) {
-        const heightSidePanel = window.innerHeight
-        - parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'))
-        - parseFloat(window.getComputedStyle(mapElement).getPropertyValue('height'));
-        sidePanel.style.height = heightSidePanel+'px';
-    } else {
-        sidePanel.style.height = (window.innerHeight - 139) + 'px';
-    }
-}
-window.addEventListener('load', sidePanelFillToBottom);
-window.addEventListener('resize', sidePanelFillToBottom);
-document.getElementById('date-type').addEventListener('change', sidePanelFillToBottom);

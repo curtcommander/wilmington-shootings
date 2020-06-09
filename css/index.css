@@ -36,20 +36,23 @@ h1 {
     background-color: gray;
 }
 
-#date-type, #date-year {
+/* don't display default arrow icon */
+select, input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+select {
     font-size: 18px;
     border-style: none;
     width: min(45%, 150px);
     border-radius: 5px;
-    padding: 3px 0px 3px 7px;
-    /* don't display default arrow icon */
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    padding: 3px 0 1px 7px;
     /* arrow icon for dropdown */
     background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQwOCAxMDg4cTAgMjYtMTkgNDVsLTQ0OCA0NDhxLTE5IDE5LTQ1IDE5dC00NS0xOWwtNDQ4LTQ0OHEtMTktMTktMTktNDV0MTktNDUgNDUtMTloODk2cTI2IDAgNDUgMTl0MTkgNDV6Ii8+PC9zdmc+'),
-	    linear-gradient(to bottom, white 0%,white 100%);
-	background-repeat: no-repeat, repeat;
-	background-position: right .3em top 25%, 0 0;
+        linear-gradient(to bottom, white 0%,white 100%);
+    background-repeat: no-repeat, repeat;
+    background-position: right .3em top 30%, 0 0;
     background-size: .65em auto, 100%;
 }
 
@@ -67,13 +70,17 @@ h1 {
 }
 
 #date-custom-from, #date-custom-to, .flatpickr-input {
-    text-align: center;
-    padding: 2px;
+    padding: 3px 0 1px 7px;
     font-size: 18px;
+    width: 150px;
     border-radius: 5px;
     border: none;
-    width: min(45%, 150px);
-    background: white;
+    background-color: white;
+    /* calendar icon for data selection */
+    background-image: url("data:image/svg+xml,%3Csvg class='bi bi-calendar' width='1em' height='1em' viewBox='0 0 16 16' fill='currentColor' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1zm1-3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2z'/%3E%3Cpath fill-rule='evenodd' d='M3.5 0a.5.5 0 0 1 .5.5V1a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 .5-.5zm9 0a.5.5 0 0 1 .5.5V1a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 .5-.5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, repeat;
+    background-position: right .3em top 55%, 0 0;
+    background-size: .65em auto, 100%;
 }
 
 /*///////////*/
@@ -106,6 +113,7 @@ h1 {
 /*/// SIDE PANEL ///*/
 /*//////////////////*/
 
+/* height of side panel set in index.js */
 #side-panel {
     width: 100%;
     padding: 0 10px 10px 10px;
@@ -128,6 +136,7 @@ iframe {
 
 .incident {
     font-size: min(4.5vmin, 16px);
+    height: 100%;
 }
 
 .incident_header {
@@ -187,7 +196,7 @@ iframe {
 @media only screen and (min-width: 800px) {
     h1 {
         height: 100px;
-        font-size: 400%;
+        font-size: 388%;
     }
     
     #date-type, #date-year {
@@ -201,13 +210,13 @@ iframe {
     #map {
         float: left;
         width: max(60%, calc(100% - 400px));
-        height: calc(100vh - 137px);
+        /*height: calc(100vh - 139px);*/
         min-height: 364px;
     }
 
     #side-panel {
         width: min(40%, 400px);
-        height: calc(100vh - 137px);
+        height: calc(100vh - 139px);
         min-height: 364px;
         position: relative;
     }
@@ -218,8 +227,7 @@ iframe {
         height: 50vh;
         min-height: 250px;
         position: relative;
-        top: max(calc((100vh - 137px - 50vh - 64px)/2), calc((500px - 137px - 250px - 64px)/2));
-        overflow: hidden;
+        top: max(calc((100vh - 139px - 50vh - 64px)/2), calc((500px - 139px - 250px - 64px)/2));
         border-top: solid 2px gray;
         border-bottom: solid 2px gray;
         border-left: none;

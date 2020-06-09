@@ -358,8 +358,10 @@ d3.csv('data/yearlyData.csv')
         data.columns.slice(5,7),
         data.columns.slice(7,9)
     ];
-    buildBarChart();
-    buildLegend();
+    if (window.innerWidth >= 300) {
+        buildBarChart();
+        buildLegend();
+    }
 })
 
 ///////////////////////////////
@@ -380,7 +382,10 @@ document.getElementById('select-series').addEventListener('change', handlerChang
 
 function redrawSVG() {
     if (window.innerWidth >= 300) {
-        // series vars don't need to be set, buildBarChart not called
+        // series vars only need to be set if they haven't been already
+        if (typeof(dataSeries) == 'undefined') {
+            setSeriesVars();
+        }
         resetBarChartDims();
         plotBarChart();
         labelsBarChart();
