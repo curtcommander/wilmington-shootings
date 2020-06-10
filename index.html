@@ -5,9 +5,14 @@
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport" content ="width=device-width, initial-scale = 1">
     <link rel="icon" href ="gunIcon.png">
+    <!-- preload resources requested by barChart.html-->
+    <link rel="preload" href="css/barChart.min.css" as="style" media="(min-device-width: 800px)">
+    <link rel="preload" href="js/barChart.min.js" as="script" media="(min-device-width: 800px)">
     <!--fonts-->
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed" rel="stylesheet">
+    <!--css-->
+    <link rel="stylesheet" href="css/index.min.css" type='text/css'>
     <!--leaflet-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
         integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
@@ -21,11 +26,9 @@
     <script src="js/jszip.min.js"></script>
     <!--fetch-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
-    <!--datepicker (flatpickr)-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!--datepicker (flatpickr), load css async (noncritical)-->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
-    <!--css-->
-    <link rel="stylesheet" href="css/index.min.css" type='text/css'>
     <!--js-->
     <script src="js/index.min.js" defer></script>
 </head>
@@ -65,7 +68,12 @@
                 <p>Click on a shooting for incident report</p>
                 <p>App developed by <a href="https://github.com/curtcommander">Curt Commander</a></p>
                 <p>Data from <a href="https://data.delawareonline.com/webapps/crime/">Wilmington Shootings</a></p>
-                <iframe id="barChart" src="barChart.html"></iframe>
+                <iframe id="barChart"></iframe>
+                <script>
+                    if (window.outerWidth >= 800) {
+                        document.getElementById('barChart').src = "barChart.html";
+                    }
+                </script>
             </div>
         </div>
     </div>
