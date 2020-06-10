@@ -128,7 +128,7 @@ function prepareDataObjects(currentData) {
     }
 
     // load rest of data into dataYearly and dataChron
-    d3.csv('/data/incidentDataCurrent.csv').then(function(data) {            
+    d3.csv('data/incidentDataCurrent.csv').then(function(data) {            
         data.forEach(function(d) {
             // dataYearly
             dataYearly[d.YEAR].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
@@ -140,7 +140,7 @@ function prepareDataObjects(currentData) {
 }
 
 // read in current data
-d3.csv('/data/incidentDataCurrent.csv')
+d3.csv('data/incidentDataCurrent.csv')
 .then(function(currentData) {
     // plot current data
     plotCurrentData(currentData);
