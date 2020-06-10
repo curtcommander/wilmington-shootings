@@ -31,7 +31,6 @@ from config import google_maps_key
 import json
 from time import sleep
 import pandas as pd
-from zipfile import ZipFile, ZIP_DEFLATED
 
 # path to data subdirectory
 path_data = os.path.dirname(os.path.realpath(__file__))[:-len('python')] + '/data/'
@@ -210,15 +209,6 @@ else:
     # previous data is all data before the current year
     data_previous_df = data_df.loc[data_df['YEAR'] != year_current]
     data_previous_df.to_csv(path_data + 'incidentDataPrevious.csv', index = False)
-    
-    # write data to zip files
-    with ZipFile(path_data + 'incidentDataCurrent.zip', 'w', ZIP_DEFLATED) as zip:
-        with open(path_data + 'incidentDataCurrent.csv' , 'r', encoding='utf-8') as f:
-            zip.writestr('incidentDataCurrent.csv', f.read())
-        
-    with ZipFile(path_data + 'incidentDataPrevious.zip', 'w', ZIP_DEFLATED) as zip:
-        with open(path_data + 'incidentDataPrevious.csv' , 'r', encoding='utf-8') as f:
-            zip.writestr('incidentDataPrevious.csv', f.read())
-    
+     
     # print number of new incidents added to data files
     print(str(len(data_new))+' new incidents added.')

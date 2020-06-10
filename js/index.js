@@ -85,40 +85,18 @@ map.on('zoomstart', adjustIcons)
 /// READ IN DATA AND INITIAL PLOT ///
 /////////////////////////////////////
 
-// load current data
-function loadCurrentData(response) {
-    return new Promise(function(resolve) {
-        response.arrayBuffer().then(function(buffer) {
-            // get data as string
-            const blob = new Blob([buffer], {type : "application/zip"});
-            const zip = new JSZip();
-            zip.loadAsync(blob).then(function(zip) {
-                return zip.file('incidentDataCurrent.csv').async('string');
-            // parse and return data
-            }).then(function(dataAsString) {
-                const currentData = d3.csvParse(dataAsString); 
-                resolve(currentData);
-            })
-        })
-    })
-}
-
 // plot data returned by loadCurrentData
 const markers = L.layerGroup();
 function plotCurrentData(currentData) {
-    return new Promise(function(resolve) {
-        // set intial icon size by calling adjustIcons
-        adjustIcons();
-        for (let i = 0; i < currentData.length; i++) {
-            const d = currentData[i];
-            L.marker([d.LAT, d.LONG], {icon: icon})
-                .on("click", markerClickHandler)
-                .addTo(markers)
-        }
-        markers.addTo(map);
-        // pass currentData to prepareData
-        resolve(currentData);
-    })   
+    // set intial icon size by calling adjustIcons
+    adjustIcons();
+    for (let i = 0; i < currentData.length; i++) {
+        const d = currentData[i];
+        L.marker([d.LAT, d.LONG], {icon: icon})
+            .on("click", markerClickHandler)
+            .addTo(markers)
+    }
+    markers.addTo(map);
 }
 
 // prepare global data objects: dataYearly and dataChron
@@ -138,7 +116,7 @@ while (yearDataYearly <= yearCurrent) {
 let year = yearCurrent;
 
 function prepareDataObjects(currentData) {
-    // add initial data to dataChron and dataYearly
+    // add current data to dataChron and dataYearly
     dataChron = currentData;
     dataYear = dataYearly[year];
     for (let i = 0; i < dataChron.length; i++) {
@@ -150,35 +128,25 @@ function prepareDataObjects(currentData) {
     }
 
     // load rest of data into dataYearly and dataChron
-    fetch('data/incidentDataPrevious.zip').then(function(response) {
-        // get data as string
-        response.arrayBuffer().then(function(buffer) {
-            const blob = new Blob([buffer], {type : "application/zip"});
-            const zip = new JSZip();
-            zip.loadAsync(blob).then(function(zip) {
-                return zip.file('incidentDataPrevious.csv').async('string');
-            })
-        // parse data
-        .then(function(dataAsString) {
-            return d3.csvParse(dataAsString);
-        // add data to dataYearly and dataChron
-        }).then(function(data) {            
-            data.forEach(function(d) {
-                // dataYearly
-                dataYearly[d.YEAR].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
-                // dataChron
-                delete d.YEAR;
-                dataChron.push(d);
-                })
-            })
+    d3.csv('/data/incidentDataCurrent.csv').then(function(data) {            
+        data.forEach(function(d) {
+            // dataYearly
+            dataYearly[d.YEAR].push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
+            // dataChron
+            delete d.YEAR;
+            dataChron.push(d);
         })
     })
 }
 
-fetch('data/incidentDataCurrent.zip')
-.then(loadCurrentData)
-.then(plotCurrentData)
-.then(prepareDataObjects)
+// read in current data
+d3.csv('/data/incidentDataCurrent.csv')
+.then(function(currentData) {
+    // plot current data
+    plotCurrentData(currentData);
+    // populate objects with current and previous data
+    prepareDataObjects(currentData);
+})
 
 ////////////////////////
 /// GLOBAL VARIABLES ///
