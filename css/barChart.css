@@ -36,9 +36,10 @@ body {
 
 #select-series { 
     width: 45vmin;
-    padding: 5px 2px 5px 7px;
+    padding: 7px 2px 5px 7px;
     border: 2px solid gray;
     border-radius: 5px;
+    font-size: 15px;
     /* don't display default arrow icon */
     -webkit-appearance: none;
     -moz-appearance: none;
