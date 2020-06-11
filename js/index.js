@@ -484,7 +484,9 @@ function defaultSidePanel() {
         // remove incident from DOM
         const incident = document.querySelector('.incident');
         incident.parentNode.removeChild(incident);
-        newRectsHandler();
+        if (window.outerWidth >= 800) {
+            newRectsHandler();
+        }
     }
 }
 map.on('click', defaultSidePanel);
