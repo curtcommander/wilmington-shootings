@@ -83,24 +83,22 @@ y_max_ytds = math.ceil(max_ytds)
     
 # write to file
 files_path_in = os.listdir(path_root + 'js/')
-files = ['barChart.js', 'barChart.min.js']
-for file in files:    
-    if file in files_path_in:
-        with open(path_root + 'js/' + file, 'r+') as f:
-            js = f.read()
-            
-            # set yearCurrent
-            yearCurrent = re.search('yearCurrent *= *20[0-9][0-9]', js).group(0)
-            js = js.replace(yearCurrent, 'yearCurrent = '+str(year_current))
-            
-            # set yMaxTotal
-            yMaxTotal = re.search('yMaxTotal *= *[0-9]*', js).group(0)
-            js = js.replace(yMaxTotal, 'yMaxTotal = '+str(y_max_totals))
-            
-            # set yMaxYTD
-            yMaxYTD = re.search('yMaxYTD *= *[0-9]*', js).group(0)
-            js = js.replace(yMaxYTD, 'yMaxYTD = '+str(y_max_ytds))
-            
-            f.seek(0)
-            f.write(js)
-            f.truncate()
+if 'barChart.js' in files_path_in:
+    with open(path_root + 'js/barChart.js', 'r+') as f:
+        js = f.read()
+        
+        # set yearCurrent
+        yearCurrent = re.search('yearCurrent *= *20[0-9][0-9]', js).group(0)
+        js = js.replace(yearCurrent, 'yearCurrent = '+str(year_current))
+        
+        # set yMaxTotal
+        yMaxTotal = re.search('yMaxTotal *= *[0-9]*', js).group(0)
+        js = js.replace(yMaxTotal, 'yMaxTotal = '+str(y_max_totals))
+        
+        # set yMaxYTD
+        yMaxYTD = re.search('yMaxYTD *= *[0-9]*', js).group(0)
+        js = js.replace(yMaxYTD, 'yMaxYTD = '+str(y_max_ytds))
+        
+        f.seek(0)
+        f.write(js)
+        f.truncate()
