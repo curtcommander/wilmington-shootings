@@ -181,7 +181,7 @@ function plotMarkersYear() {
     markers.clearLayers();
     // add new markers corresponding to year selected
     const dataYear = dataYearly[year];
-    for (i = 0; i < dataYear.length; i++) {
+    for (let i = 0; i < dataYear.length; i++) {
         L.marker([dataYear[i].LAT, dataYear[i].LONG], {icon: icon})
             .on("click", markerClickHandler)
             .addTo(markers)};
@@ -206,7 +206,7 @@ function plotMarkersCustomDate() {
     const fromDate = adjustTimeZoneOffset(new Date(dateCustomFrom.value));
     const toDate = adjustTimeZoneOffset(new Date(dateCustomTo.value));
     // loop through dataChron (chronologically descending)
-    for (i = 0; i < dataChron.length; i++) {
+    for (let i = 0; i < dataChron.length; i++) {
         let d = dataChron[i];
         d.DATE = adjustTimeZoneOffset(new Date(d.DATE));
         if (d.DATE >= fromDate) {
@@ -406,7 +406,7 @@ function unselectMarker() {
 }
 
 // select marker and display corresponding incident report
-function selectMarker() {
+function selectMarker(incidentHTML) {
     // unselect previously selected marker
     unselectMarker();
     // select marker clicked on
@@ -420,15 +420,18 @@ function selectMarker() {
         incident.parentNode.removeChild(incident);
     }
     // append incident report to side panel and display it
-    const dNode = document.createRange().createContextualFragment(d.HTML);
+    const dNode = document.createRange().createContextualFragment(incidentHTML);
     sidePanel.append(dNode);
 }
+
+// global so that selectMarker can access it
+var markerSelectedNew;
 
 // handler for when marker is clicked
 function markerClickHandler(e) {
     // clicking marker already selected pulls up default report
     const markerSelectedOld = document.querySelector('.marker-selected');
-    // global so that selectMarker can access it
+    
     markerSelectedNew = e.target._icon;
     if (markerSelectedOld == markerSelectedNew) {
         defaultSidePanel();
@@ -443,9 +446,9 @@ function markerClickHandler(e) {
         if (dateType.value == 'year') { 
             const dataYear = dataYearly[year];
             for (let i = 0; i < dataYear.length; i++) {
-                d = dataYear[i];
+                const d = dataYear[i];
                 if (d.LAT == latClicked && d.LONG == longClicked) {
-                    selectMarker();
+                    selectMarker(d.HTML);
                     break;
                 }
             }
@@ -455,10 +458,10 @@ function markerClickHandler(e) {
             const fromDate = adjustTimeZoneOffset(new Date(dateCustomFrom.value));
             const toDate = adjustTimeZoneOffset(new Date(dateCustomTo.value));
             for (let i = 0; i < dataChron.length; i++) {
-                d = dataChron[i];
+                const d = dataChron[i];
                 const dateIncident = adjustTimeZoneOffset(new Date(d.DATE));
                 if (d.LAT == latClicked && d.LONG == longClicked && dateIncident >= fromDate && dateIncident <= toDate) {
-                    selectMarker();
+                    selectMarker(d.HTML);
                     break;
                 }
             }
@@ -481,6 +484,7 @@ function defaultSidePanel() {
         // remove incident from DOM
         const incident = document.querySelector('.incident');
         incident.parentNode.removeChild(incident);
+        newRectsHandler();
     }
 }
 map.on('click', defaultSidePanel);
@@ -490,10 +494,12 @@ map.on('click', defaultSidePanel);
 /////////////////////////////////////
 
 // only larger devices have bar chart
-if (window.outerWidth >= 800) {
 
+var bindRectsClickHandler, newRectsHandler;
+if (window.outerWidth >= 800) {
+    
     // rect click handler, change year when rect clicked
-    function bindRectsClickHandler() {
+    bindRectsClickHandler = function() {
         barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
             rect.addEventListener('click', function() {
 
@@ -533,7 +539,7 @@ if (window.outerWidth >= 800) {
         })
     }
 
-    function newRectsHandler() {
+    newRectsHandler = function() {
         if (window.innerWidth >= 800) {
             setTimeout(function() {
                 bindRectsClickHandler();
