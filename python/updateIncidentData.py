@@ -205,12 +205,12 @@ else:
     # current data is all data for the current year
     year_current = data_df.iloc[0,0]
     data_current_df = data_df.loc[data_df['YEAR'] == year_current]
-    #data_current_df.to_csv(path_data + 'incidentDataCurrent.csv', index = False)
+    data_current_df.to_csv(path_data + 'incidentDataCurrent.csv', index = False)
     
     # get previous data and write to shootingsDataPrevious.csv
     # previous data is all data before the current year
     data_previous_df = data_df.loc[data_df['YEAR'] != year_current]
-    #data_previous_df.to_csv(path_data + 'incidentDataPrevious.csv', index = False)
+    data_previous_df.to_csv(path_data + 'incidentDataPrevious.csv', index = False)
      
     # print number of new incidents added to data files
     print(str(len(data_new))+' new incidents added.')
