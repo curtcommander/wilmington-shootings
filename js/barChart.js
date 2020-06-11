@@ -1,3 +1,5 @@
+'use strict';
+
 ///////////////////////
 /// BAR CHART SETUP ///
 ///////////////////////
@@ -30,12 +32,12 @@ while (y <= yearCurrent) {
     y++
 };
 
-xScale = d3
+const xScale = d3
     .scaleBand()
     .domain(years)
     .padding(0.2)
 
-xAxis = barChartD3
+const xAxis = barChartD3
     .append('g')
     .attr('id', 'x-axis')
     .attr('class', 'axis')
@@ -44,15 +46,15 @@ xAxis = barChartD3
 const yMaxTotal = 197;
 const yMaxYTD = 90;
 
-yScaleTotal = d3
+const yScaleTotal = d3
     .scaleLinear()
     .domain([0, yMaxTotal])
 
-yScaleYTD = d3
+const yScaleYTD = d3
     .scaleLinear()
     .domain([0, yMaxYTD])
 
-yAxis = barChartD3
+const yAxis = barChartD3
     .append('g')
     .attr('id', 'y-axis')
     .attr('class', 'axis');
@@ -62,6 +64,7 @@ yAxis = barChartD3
 //////////////////////////////////
 
 // variables for dimensions of SVGs
+var marginSVG, widthSVG, heightSVG, fontSize, heightBars;
 const barChartSVG = barChartD3.node();
 
 function resetBarChartDimVars() {
@@ -76,6 +79,7 @@ function resetBarChartDimVars() {
     heightBars = heightSVG - heightXAxis;
 }
 
+var xBandwidth;
 function resetBarChartAxes() {
     // x-axis
     xScale.range([0, widthSVG]);
@@ -102,6 +106,8 @@ function resetBarChartDims() {
 // sets seriesNum, yScale, and dataSeries global variables
 // which are used in other funnctions
 // and depend on series selected (value of #select-series)
+
+var seriesNum, yScale, dataSeries;
 function setSeriesVars() {
     // seriesNum 
     seriesNum = document.getElementById('select-series').value;
@@ -160,9 +166,10 @@ barChartD3
         .attr('id', function(d) {return 'labels-bar-chart-'+d})
 
 function getLabelText(d) {
+    var yMax;
     // get h, a measure of the relative height of the rect being labeled
     (seriesNum < 2) ? yMax = yMaxTotal : yMax = yMaxYTD;
-    h = (d[1]-d[0])/yMax;
+    const h = (d[1]-d[0])/yMax;
 
     // height of rect is too small, set rect's label as empty string
     if (h < 0.05) {
@@ -208,8 +215,7 @@ function rectMouseover(rect) {
     rectBlack.attr('stroke', 'black');
     rectBlack.attr('stroke-width', '1.5vh');
     rectBlack.attr('stroke-opacity', '0.4');
-    // 0.1 and 0.2 fix issue with stroke lengths not aligning
-    rectBlack.attr('stroke-dasharray', (xBandwidth+h-0.1) + ' ' + (xBandwidth+0.2))
+    rectBlack.attr('stroke-dasharray', (xBandwidth+h) + ' ' + (xBandwidth))
 }
 
 function rectMouseout(rect) {
@@ -237,7 +243,7 @@ function bindRectClickListeners() {
 //////////////
 
 // legend structure
-legendD3 = d3.select('#svg-legend');
+const legendD3 = d3.select('#svg-legend');
 
 legendD3.selectAll('g').data(colors).enter()
     .append('g')
@@ -245,6 +251,7 @@ legendD3.selectAll('g').data(colors).enter()
     .attr('class', 'legend-entry')
 
 // reset variables for legend dimensions
+var incidentsTextWidth, halfWidth;
 function resetLegendDimVars() {   
     incidentsTextWidth = fontSize*6.57;
     halfWidth = parseFloat(window.getComputedStyle(barChartSVG).getPropertyValue('width'))/2;
@@ -300,6 +307,7 @@ function getLegendLabelText(i) {
 }
 
 // called after initial plot and whenever series changes
+var labelBlack, labelRed;
 function labelsLegend () {
 
     // incidents label text
@@ -348,6 +356,7 @@ function buildLegend() {
 }
 
 // read in data
+var seriesNames;
 d3.csv('data/yearlyData.csv')
 .then(function(data) {
     // pass data to parent document

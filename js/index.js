@@ -1,3 +1,5 @@
+'use strict';
+
 ///////////
 /// MAP ///
 ///////////
@@ -114,6 +116,9 @@ while (yearDataYearly <= yearCurrent) {
 
 // iniatialize year, global variable (string) used to keep track of year selected
 let year = yearCurrent;
+
+// declare vars
+var dataChron, dataYear;
 
 function prepareDataObjects(currentData) {
     // add current data to dataChron and dataYearly
@@ -342,6 +347,7 @@ function layoutAdjustments() {
         barChart.style.top = (heightSidePanel - 64 - Math.max(window.innerHeight*0.5, 250))/2+'px'
     }
 }
+layoutAdjustments();
 window.addEventListener('resize', layoutAdjustments);
 
 ////////////////////////
@@ -488,8 +494,7 @@ if (window.outerWidth >= 800) {
 
     // rect click handler, change year when rect clicked
     function bindRectsClickHandler() {
-        rects = barChart.contentDocument.querySelectorAll('#svg-bar-chart rect');
-        rects.forEach(function(rect) {
+        barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
             rect.addEventListener('click', function() {
 
                 // date type is year
