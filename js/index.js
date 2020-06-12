@@ -202,7 +202,7 @@ function adjustTimeZoneOffset(d) {
 function plotMarkersCustomDate() {
     // clear old markers
     markers.clearLayers();
-    // add new markers that fall in date range selected 
+    // add new markers that fall in date range selected
     const fromDate = adjustTimeZoneOffset(new Date(dateCustomFrom.value));
     const toDate = adjustTimeZoneOffset(new Date(dateCustomTo.value));
     // loop through dataChron (chronologically descending)
@@ -266,60 +266,43 @@ function updateDatePickers() {
 }
 
 function dateCustomFromChangeHandler() {
-    const fromDate = new Date(dateCustomFrom.value); 
 
-    // from date selected is less than min date 
-    if (fromDate < new Date(fromDateOptions.minDate)) {
-        // truncate from date to the minimum
-        dateCustomFrom.value = fromDateOptions.minDate;
+    // from date selected out of range on iOS devices, from date stays most recent date selected
+    if (dateCustomFrom.value == "") {
+        dateCustomFrom.value = fromDateOptions.defaultDate;
+        // replot markers, plotMarkersCustom clears them with the from date being ''
         dateCustomFrom.dispatchEvent(new Event('change'));
-        // set min date as default in from date datepicker
-        fromDateOptions.defaultDate = fromDateOptions.minDate;
-        flatpickr('#date-custom-from', fromDateOptions)
-    
-    // from date selected is greater than to date
-    } else if (fromDate > new Date(dateCustomTo.value)) {
-        // truncate from date to to date
-        dateCustomFrom.value = dateCustomTo.value;
-        fromDateOptions.defaultDate = dateCustomTo.value;
-        // set to date as default in from date datepicker
-        dateCustomFrom.dispatchEvent(new Event('change'));
-        flatpickr('#date-custom-from', fromDateOptions)
+    // from date selected within range
+    } else {
+        // update from datepicker's default date
+        fromDateOptions.defaultDate = dateCustomFrom.value;
+        flatpickr('#date-custom-from', fromDateOptions);
+
+        // update to datepicker's min date
+        toDateOptions.minDate = dateCustomFrom.value;
+        flatpickr('#date-custom-to', toDateOptions);
     }
-
-    // update to date datepicker
-    toDateOptions.minDate = dateCustomFrom.value;
-    toDateOptions.defaultDate = dateCustomTo.value;
-    flatpickr('#date-custom-to', toDateOptions)
 }
 dateCustomFrom.addEventListener('change', dateCustomFromChangeHandler);
 
 function dateCustomToChangeHandler() {
-    const toDate = new Date(dateCustomTo.value); 
-
-    // to date is less than from date
-    if (toDate < new Date(dateCustomFrom.value)) {
-        // truncate to date to from date
-        dateCustomTo.value = dateCustomFrom.value;
-        // set from date as default in to date datepicker
-        dateCustomTo.dispatchEvent(new Event('change'));
-        toDateOptions.defaultDate = dateCustomFrom.value;
-        flatpickr('#date-custom-to', toDateOptions);
     
-    // to date is greater than max date
-    } else if (toDate > new Date(toDateOptions.maxDate)) {
-        // truncate to date to max date
-        dateCustomTo.value = toDateOptions.maxDate;
+    // to date selected out of range on iOS devices, to date stays most recent date selected
+    if (dateCustomTo.value == "") {
+        dateCustomTo.value = toDateOptions.defaultDate;
+        // replot markers, plotMarkersCustom clears them with the to date being ''
         dateCustomTo.dispatchEvent(new Event('change'));
-        // set max date as default in to date datepicker
-        toDateOptions.defaultDate = toDateOptions.maxDate;
+
+    // to date selected within range
+    } else {
+        // update from datepicker's max date
+        fromDateOptions.maxDate = dateCustomTo.value;
+        flatpickr('#date-custom-from', fromDateOptions)
+
+        // update to datepicker's defualt date
+        toDateOptions.defaultDate = dateCustomTo.value;
         flatpickr('#date-custom-to', toDateOptions);
     }
-
-    // update from date datepicker
-    fromDateOptions.maxDate = dateCustomTo.value;
-    fromDateOptions.defaultDate = dateCustomFrom.value;
-    flatpickr('#date-custom-from', fromDateOptions)
 }
 dateCustomTo.addEventListener('change', dateCustomToChangeHandler);
 
@@ -520,11 +503,12 @@ if (window.outerWidth >= 800) {
                 // date type is custom
                 } else {
                     // update fromDate, first day of year clicked
-                    fromDate = '01/01/'+window.yearClickedBarChart;
+                    const fromDate = '01/01/'+window.yearClickedBarChart;
                     document.getElementById('date-custom-from').value = fromDate;
                     
                     // update date pickers
                     // current year selected, toDate is today's date
+                    var toDate;
                     if (window.yearClickedBarChart == yearCurrent) {
                         toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
                     // previous year selected, toDate is last day of previous year
