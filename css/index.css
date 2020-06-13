@@ -39,7 +39,7 @@ h1 {
     padding-bottom: 6px;
     text-align: center;
     background-color: gray;
-    height: 39px;
+    height: 38px;
 }
 
 /* don't display default arrow icon */
@@ -64,7 +64,11 @@ select {
 
 /* space between #date-type and #date-year */
 #date-type {
-    margin-right: 2.5px;
+    margin: 0 2.5px 0 0;
+}
+
+#date-year {
+    margin: 0;
 }
 
 #date-custom {
