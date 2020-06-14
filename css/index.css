@@ -103,7 +103,7 @@ select {
 }
 
 #map {
-    height: calc(var(--vh) * 50);
+    height: 50vh;
     width: 100%;
     position: relative;
 }
