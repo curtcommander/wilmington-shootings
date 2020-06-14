@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport">
     <script>
-        document.getElementById('viewport').setAttribute("content", "width="+window.innerWidth)
+        const widthViewPort = Math.min(window.innerWidth, window.outerWidth);
+        document.getElementById('viewport').setAttribute("content", "width="+widthViewPort)
         function getVh() {
-            let vh = window.innerHeight * 0.01;
+            let vh = Math.min(window.innerHeight, window.outerHeight) * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
         }
         getVh();
@@ -29,7 +30,7 @@
     <!--D3-->
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <!--datepicker (flatpickr), load css async (noncritical)-->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" media="print" onload="this.media='all'">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
     <!--js-->
     <script src="js/index.js" defer></script>

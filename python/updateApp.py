@@ -89,15 +89,15 @@ if 'barChart.js' in files_path_in:
         
         # set yearCurrent
         yearCurrent = re.search('yearCurrent *= *20[0-9][0-9]', js).group(0)
-        js = js.replace(yearCurrent, 'yearCurrent = '+str(year_current))
+        js = js.replace(yearCurrent, 'yearCurrent='+str(year_current))
         
         # set yMaxTotal
         yMaxTotal = re.search('yMaxTotal *= *[0-9]*', js).group(0)
-        js = js.replace(yMaxTotal, 'yMaxTotal = '+str(y_max_totals))
+        js = js.replace(yMaxTotal, 'yMaxTotal='+str(y_max_totals))
         
         # set yMaxYTD
         yMaxYTD = re.search('yMaxYTD *= *[0-9]*', js).group(0)
-        js = js.replace(yMaxYTD, 'yMaxYTD = '+str(y_max_ytds))
+        js = js.replace(yMaxYTD, 'yMaxYTD='+str(y_max_ytds))
         
         f.seek(0)
         f.write(js)

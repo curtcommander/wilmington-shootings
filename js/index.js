@@ -311,7 +311,8 @@ dateCustomTo.addEventListener('change', dateCustomToChangeHandler);
 //////////////////////////
 
 function layoutAdjustments() {
-    if (window.innerWidth < 800) {
+    // portrait
+    if (window.innerWidth < 800 || window.innerWidth < window.innerHeight) {
         // fall back on map height being set to 50vh in css
         mapElement.style.height = '';
         // fill side panel to bottom
@@ -319,7 +320,7 @@ function layoutAdjustments() {
         const heightMap = parseFloat(window.getComputedStyle(mapElement).getPropertyValue('height'));
         const heightSidePanel = window.innerHeight - heightTop - heightMap;
         sidePanel.style.height = heightSidePanel+'px';
-
+    // landscape
     } else {
         const heightTop = parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'));
         const heightSidePanel = Math.max(window.innerHeight - heightTop, 364);

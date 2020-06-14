@@ -54,7 +54,7 @@ select {
     width: min(45%, 150px);
     height: 26px;
     border-radius: 5px;
-    padding: 3px 0 1px 7px;
+    padding: 2px 0 1px 7px;
     /* arrow icon for dropdown */
     background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTQwOCAxMDg4cTAgMjYtMTkgNDVsLTQ0OCA0NDhxLTE5IDE5LTQ1IDE5dC00NS0xOWwtNDQ4LTQ0OHEtMTktMTktMTktNDV0MTktNDUgNDUtMTloODk2cTI2IDAgNDUgMTl0MTkgNDV6Ii8+PC9zdmc+'),
         linear-gradient(to bottom, white 0%,white 100%);
@@ -103,7 +103,7 @@ select {
 }
 
 #map {
-    height: 50vh;
+    height: calc(var(--vh) * 50);
     width: 100%;
     position: relative;
 }
@@ -204,7 +204,7 @@ iframe {
 /*/// LARGE SCREENS ///*/
 /*/////////////////////*/
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 800px) and (min-aspect-ratio: 1/1) {
     h1 {
         height: 100px;
         font-size: 60px;
