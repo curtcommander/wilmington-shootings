@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta id="viewport" name="viewport">
     <script>
-        var width;
-        (window.innerHeight > window.innerWidth) ? width = screen.width : width = screen.height
-        document.getElementById('viewport').setAttribute("content", "width="+width) 
+        document.getElementById('viewport').setAttribute("content", "width="+window.innerWidth)
+        function getVh() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        getVh();
+        window.addEventListener('resize', getVh);
     </script>
     <link rel="icon" href ="gunIcon.png">
     <!--fonts-->
