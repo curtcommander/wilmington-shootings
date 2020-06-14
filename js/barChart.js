@@ -213,9 +213,10 @@ function rectMouseover(rect) {
     const rectBlack = getRectBlack(rect);
     const h = Number(rectBlack.attr('height'));
     rectBlack.attr('stroke', 'black');
-    rectBlack.attr('stroke-width', '1.5vh');
+    rectBlack.attr('stroke-width', vh(1.5)+'px');
     rectBlack.attr('stroke-opacity', '0.4');
-    rectBlack.attr('stroke-dasharray', (xBandwidth+h) + ' ' + (xBandwidth))
+    rectBlack.attr('stroke-linecap', 'square');
+    rectBlack.attr('stroke-dasharray', (xBandwidth+h-vh(1.5)/2) + ' ' + (xBandwidth+vh(1.5)));
 }
 
 function rectMouseout(rect) {
