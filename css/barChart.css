@@ -6,15 +6,12 @@
     --font-size: min(2.5vw, 14px);
 }
 
-:focus {
-    outline: none;
-}
-
 select:-moz-focusring {
     color: transparent;
     text-shadow: 0 0 0 #000;
 }
 
+/* prevent scrollbar from flickering when loading */
 ::-webkit-scrollbar {
     display: none;
 }
@@ -53,7 +50,7 @@ body {
 
 #svg-bar-chart {
     height: 70vh;
-    width: calc(100% - 5vw);
+    width: calc(100vw - 20px);
     margin: 10px;
     display: block;
 }

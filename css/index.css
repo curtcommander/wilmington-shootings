@@ -8,10 +8,6 @@
     --color-selected: black;
 }
 
-:focus {
-    outline: none;
-}
-
 select:-moz-focusring {
     color: transparent;
     text-shadow: 0 0 0 #000;
@@ -35,8 +31,7 @@ h1 {
 }
 
 #container-date {
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding: 6px 0;
     text-align: center;
     background-color: gray;
     height: 38px;
@@ -65,22 +60,17 @@ select {
 
 /* space between #date-type and #date-year */
 #date-type {
-    margin: 0 2.5px 0 0;
-}
-
-#date-year {
-    margin: 0;
+    margin-right: 2.5px;
 }
 
 #date-custom {
     background-color : lightgray;
-    padding-top : 6px;
-    padding-bottom : 6px;
+    padding: 6px 0;
     display: none;
     text-align: center;
 }
 
-#date-custom-from, #date-custom-to, .flatpickr-input {
+input {
     padding: 3px 0 1px 7px;
     font-size: 18px;
     width: 150px;
@@ -104,7 +94,6 @@ select {
 
 #map {
     height: 50vh;
-    width: 100%;
     position: relative;
 }
 
@@ -126,8 +115,7 @@ select {
 
 /* height of side panel set in index.js */
 #side-panel {
-    width: 100%;
-    padding: 0 10px 10px 10px;
+    padding: 0 10px 10px;
     overflow: auto;
 }
 
@@ -138,7 +126,7 @@ select {
 }
 
 #side-panel-default > p:first-child {
-    margin: 10px 0 0;
+    margin-top: 10px;
 }
 
 iframe {
@@ -152,15 +140,7 @@ iframe {
 
 .incident_header {
     text-align: center;
-    pointer-events: none;
-    cursor: text;
     margin: 10px 0 5px;
-}
-
-.incident_header > a {
-    color: black;
-    text-decoration: none;
-    font-weight: 1000;
     font-size: min(6vmin, 26px);
     font-family: 'Roboto Condensed', sans-serif;
 }
@@ -169,26 +149,23 @@ iframe {
     text-align: center;
 }
 
+/* space between "shooting" and datetime in incident subheading*/
 .incident .datetime .label {
     padding-right: 20px;
 }
 
 .incident hr {
-    padding: 0.5px;
     border: none;
     background-color: black;
     height: 1.5px;
-    margin-top: 5px;
 }
 
 .incident table {
     width: 100%!important;
-    margin: auto;
 }
 
 .incident td {
     text-align: center;
-    padding: 0 10px;
     width: 50%!important;
 }
 
@@ -211,35 +188,36 @@ iframe {
         line-height: 78px;
     }
     
-    #date-type, #date-year {
+    select, input {
         width: 150px;
     }
 
-    #date-custom-from, #date-custom-to {
-        width: 150px;
-    }
-
-    #map {
-        float: left;
-        width: max(60%, calc(100% - 400px));
+    /* minimum height of map and side panel are 364px */
+    /* 139px is approx height of #top */
+    #map, #side-panel {
         height: calc(100vh - 139px);
         min-height: 364px;
+    }
+
+    /* max width of side panel is 400px */
+    #map {
+        width: max(60%, calc(100% - 400px));
+        float: left;
     }
 
     #side-panel {
         width: min(40%, 400px);
-        height: calc(100vh - 139px);
-        min-height: 364px;
         position: relative;
     }
 
     iframe {
         display: unset;
         width: 100%;
-        /* vh calculated manually in index.html head, issues on iOS */
+        /* --vh calculated manually in index.html head, fixes issues on iOS */
         height: calc(var(--vh) * 50);
         min-height: 250px;
         position: relative;
+        /* placeholder, top overriden by index.js */
         top: max(calc((100vh - 139px - 50vh - 64px)/2), calc((500px - 139px - 250px - 64px)/2));
         border-top: solid 2px gray;
         border-bottom: solid 2px gray;
@@ -251,15 +229,11 @@ iframe {
         font-size: 11px!important;
     }
 
-    #side-panel-default > p {
+    #side-panel-default > p, .incident {
         font-size: 15px;
     }
 
-    .incident {
-        font-size: 16px;
-    }
-
-    .incident_header > a {
+    .incident_header {
         font-size: 4vmin;
     }
 }

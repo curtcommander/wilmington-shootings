@@ -73,7 +73,9 @@
                 <p>Data from <a href="https://data.delawareonline.com/webapps/crime/">Wilmington Shootings</a></p>
                 <iframe id="barChart"></iframe>
                 <script>
-                    if (window.outerWidth >= 800) {
+                    // bar chart only applies for large layout
+                    // don't load barChart.html if screen is too small for large layout
+                    if (screen.width >= 800 || screen.height >= 800) {
                         document.getElementById('barChart').src = "barChart.html";
                     }
                 </script>

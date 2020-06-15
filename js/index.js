@@ -44,7 +44,9 @@ const svgTemplate = L.Util.template(' \
         C7.08,7.87,7.109,7.875,7.138,7.875c0.094,0,0.184-0.058,0.221-0.15c0.047-0.123-0.014-0.26-0.136-0.308 \
         c-0.417-0.162-0.5-0.792-0.516-1.068h1.205c0.393,0.102,0.686,0.459,0.686,0.883C8.598,7.734,8.188,8.144,7.685,8.144z \
         M14.098,5.612H7.924l1.072-0.357h5.102C14.098,5.255,14.098,5.612,14.098,5.612z"/> \
-</svg>');
+</svg>'
+);
+
 const icon = L.divIcon({
       className: "leaflet-data-marker",
       html: svgTemplate
@@ -52,22 +54,21 @@ const icon = L.divIcon({
 
 // icon size
 const mapElement = document.getElementById('map');
-
 function getIconSize() {
     const mapStyles = window.getComputedStyle(mapElement);
     const mapWidth = parseFloat(mapStyles.getPropertyValue('width'));
     const mapHeight = parseFloat(mapStyles.getPropertyValue('height'));
-    const vmin = Math.min(mapWidth, mapHeight);
+    const dimMin = Math.min(mapWidth, mapHeight);
     const currentZoom = map.getZoom();
-    return 0.03*vmin + 1.2*currentZoom;
+    return 0.03*dimMin + 1.2*currentZoom;
 };
 
-// adjust icon sizes and anchors
+// adjust icon sizes and anchors on map resize and zoom
 function adjustIcons() {
     // adjust size and anchor of existing icons
     const size = getIconSize();
-    const sizeCSS = String(size) + 'px';
-    const anchorCSS = size*-0.5+'px';
+    const sizeCSS = size + 'px';
+    const anchorCSS = (-0.5*size) + 'px';
     document.querySelectorAll('.leaflet-marker-icon').forEach(function(marker) {
         // adjust size
         const svgStyle = marker.querySelector('svg').style;
@@ -89,11 +90,11 @@ map.on('zoomstart', adjustIcons)
 
 // plot data returned by loadCurrentData
 const markers = L.layerGroup();
-function plotCurrentData(currentData) {
+function plotCurrentData(dataCurrent) {
     // set intial icon size by calling adjustIcons
     adjustIcons();
-    for (let i = 0; i < currentData.length; i++) {
-        const d = currentData[i];
+    for (let i = 0; i < dataCurrent.length; i++) {
+        const d = dataCurrent[i];
         L.marker([d.LAT, d.LONG], {icon: icon})
             .on("click", markerClickHandler)
             .addTo(markers)
@@ -105,31 +106,34 @@ function plotCurrentData(currentData) {
 // dataYearly for yearly data (data keyed by year in descending chronological order)
 // dataChron for custom date ranges (data in descending chronological order)
 
-// initialize dataYearly
-let dataYearly = {};
-let yearDataYearly = 2011;
+// "current" refers to most recent year throughout this file
 const yearCurrent = document.querySelector('#date-year option[selected="selected"]').value;
-while (yearDataYearly <= yearCurrent) {
-    dataYearly[yearDataYearly] = [];
-    yearDataYearly++
-}    
 
 // iniatialize year, global variable (string) used to keep track of year selected
 let year = yearCurrent;
 
-// declare vars
-var dataChron, dataYear;
+// initialize dataYearly
+let dataYearly = {};
+let yearDataYearly = 2011;
+while (yearDataYearly <= yearCurrent) {
+    dataYearly[yearDataYearly] = [];
+    yearDataYearly++;
+}    
 
-function prepareDataObjects(currentData) {
+// initialize dataChron
+let dataChron = [];
+
+// populate data objects after reading in current data
+function prepareDataObjects(dataCurrent) {
     // add current data to dataChron and dataYearly
-    dataChron = currentData;
-    dataYear = dataYearly[year];
-    for (let i = 0; i < dataChron.length; i++) {
-        let d = dataChron[i];
-        // remove year from dataChron
-        delete d.YEAR;
-        // add incident to dataYearly (year currently set to most recent year)
+    const dataYear = dataYearly[year];
+    for (let i = 0; i < dataCurrent.length; i++) {
+        let d = dataCurrent[i];
+        // dataYearly
         dataYear.push({'LAT': d.LAT, 'LONG': d.LONG, 'HTML': d.HTML})
+        // dataChron
+        delete d.YEAR;
+        dataChron.push(d);
     }
     
     // load rest of data into dataYearly and dataChron
@@ -142,16 +146,14 @@ function prepareDataObjects(currentData) {
             dataChron.push(d);
         })
     })
-    
 }
 
 // read in current data
-d3.csv('data/incidentDataCurrent.csv')
-.then(function(currentData) {
+d3.csv('data/incidentDataCurrent.csv').then(function(dataCurrent) {
     // plot current data
-    plotCurrentData(currentData);
+    plotCurrentData(dataCurrent);
     // populate objects with current and previous data
-    prepareDataObjects(currentData);
+    prepareDataObjects(dataCurrent);
 })
 
 ////////////////////////
@@ -161,6 +163,8 @@ d3.csv('data/incidentDataCurrent.csv')
 // variables necessary for initial plot are declared and initialized above as needed
 // variables below are used throughout the rest of this script
 // variable names are camel-cased element IDs (except for today)
+
+const topElement = document.getElementById('top');
 const dateType = document.getElementById('date-type');
 const dateYear = document.getElementById('date-year');
 const dateCustom = document.getElementById('date-custom');
@@ -182,7 +186,8 @@ function plotMarkersYear() {
     // add new markers corresponding to year selected
     const dataYear = dataYearly[year];
     for (let i = 0; i < dataYear.length; i++) {
-        L.marker([dataYear[i].LAT, dataYear[i].LONG], {icon: icon})
+        const d = dataYear[i];
+        L.marker([d.LAT, d.LONG], {icon: icon})
             .on("click", markerClickHandler)
             .addTo(markers)};
     markers.addTo(map);
@@ -209,16 +214,16 @@ function plotMarkersCustomDate() {
     for (let i = 0; i < dataChron.length; i++) {
         let d = dataChron[i];
         d.DATE = adjustTimeZoneOffset(new Date(d.DATE));
-        if (d.DATE >= fromDate) {
+        if (d.DATE <= toDate) {
             // date is in custom range, add marker
-            if (d.DATE <= toDate) {
+            if (d.DATE >= fromDate) {
                 L.marker([d.LAT, d.LONG],{icon: icon})
                     .on("click", markerClickHandler)
                     .addTo(markers)
+            // fromDate reached, break loop
+            } else {
+                break;
             }
-        // fromDate reached, break loop
-        } else if (d.Date < fromDate) {
-            break;
         }
     }
     markers.addTo(map);
@@ -231,7 +236,7 @@ dateCustomTo.addEventListener('change', plotMarkersCustomDate);
 /// DATE PICKERS ///
 ////////////////////
 
-// used to get today's date in format MM/DD/YYYY in toDateOptions
+// used to get today's date in format MM/DD/YYYY
 Date.prototype.formatMMDDYYYY = function() {
     return (this.getMonth()+1)+ "/"+this.getDate()+"/"+this.getFullYear();
 }
@@ -250,6 +255,8 @@ const toDateOptions = {
     defaultDate: null
 }
 
+// called when date type changes from year to custom
+// and when bar in bar chart clicked on and date type is custom
 function updateDatePickers() {
     const fromDate = dateCustomFrom.value;
     const toDate = dateCustomTo.value;
@@ -299,7 +306,7 @@ function dateCustomToChangeHandler() {
         fromDateOptions.maxDate = dateCustomTo.value;
         flatpickr('#date-custom-from', fromDateOptions)
 
-        // update to datepicker's defualt date
+        // update to datepicker's default date
         toDateOptions.defaultDate = dateCustomTo.value;
         flatpickr('#date-custom-to', toDateOptions);
     }
@@ -311,24 +318,29 @@ dateCustomTo.addEventListener('change', dateCustomToChangeHandler);
 //////////////////////////
 
 function layoutAdjustments() {
+    const heightTop = parseFloat(window.getComputedStyle(topElement).getPropertyValue('height'));
+        
     // portrait
     if (window.innerWidth < 800 || window.innerWidth < window.innerHeight) {
         // fall back on map height being set to 50vh in css
         mapElement.style.height = '';
         // fill side panel to bottom
-        const heightTop = parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'));
         const heightMap = parseFloat(window.getComputedStyle(mapElement).getPropertyValue('height'));
         const heightSidePanel = window.innerHeight - heightTop - heightMap;
         sidePanel.style.height = heightSidePanel+'px';
+
     // landscape
     } else {
-        const heightTop = parseFloat(window.getComputedStyle(document.getElementById('top')).getPropertyValue('height'));
+        // min height of map and side panel is 364px
         const heightSidePanel = Math.max(window.innerHeight - heightTop, 364);
         // map and side panel have same height
         mapElement.style.height = heightSidePanel+'px';
         sidePanel.style.height = heightSidePanel+'px';
         // vertically center bar chart
-        barChart.style.top = (heightSidePanel - 64 - Math.max(window.innerHeight*0.5, 250))/2+'px'
+        // height of default side panel p elements is 64px
+        // bar chart is 50vh (window.innerHeight*0.5)
+        // min height of bar chart 250px
+        barChart.style.top = (heightSidePanel - 64 - Math.max(window.innerHeight*0.5, 250))/2+'px';
     }
 }
 layoutAdjustments();
@@ -351,7 +363,7 @@ function dateTypeChangeHandler() {
         // update year for datepickers
         dateCustomFrom.value = '1/1/'+year;
         if (year == yearCurrent) {
-            dateCustomTo.value = String(today.getMonth()+1)+'/'+today.getDate()+'/'+year;    
+            dateCustomTo.value = (new Date()).formatMMDDYYYY();    
         } else {
             dateCustomTo.value = '12/31/'+year;
         }
@@ -361,7 +373,6 @@ function dateTypeChangeHandler() {
     } else {
         // show #date-year
         dateYear.style.display = 'unset';
-
         // hide #date-custom
         dateCustom.style.display = 'none';
 
@@ -372,6 +383,7 @@ function dateTypeChangeHandler() {
         plotMarkersYear();
     }
 
+    // height of top changed, make adjustments to layout
     layoutAdjustments();
 
 }
@@ -389,12 +401,12 @@ function unselectMarker() {
     }
 }
 
-// select marker and display corresponding incident report
-function selectMarker(incidentHTML) {
+// select marker clicked on and display corresponding incident report
+function selectMarker(markerClickedOn, incidentHTML) {
     // unselect previously selected marker
     unselectMarker();
     // select marker clicked on
-    markerSelectedNew.classList.add('marker-selected');
+    markerClickedOn.classList.add('marker-selected');
 
     // hide default report
     sidePanelDefault.style.display = 'none';
@@ -408,17 +420,14 @@ function selectMarker(incidentHTML) {
     sidePanel.append(dNode);
 }
 
-// global so that selectMarker can access it
-var markerSelectedNew;
-
 // handler for when marker is clicked
 function markerClickHandler(e) {
     // clicking marker already selected pulls up default report
     const markerSelectedOld = document.querySelector('.marker-selected');
-    
-    markerSelectedNew = e.target._icon;
+    const markerSelectedNew = e.target._icon;
     if (markerSelectedOld == markerSelectedNew) {
         defaultSidePanel();
+
     // unselected marker clicked
     } else {
         // get lat and long of marker clicked
@@ -432,7 +441,7 @@ function markerClickHandler(e) {
             for (let i = 0; i < dataYear.length; i++) {
                 const d = dataYear[i];
                 if (d.LAT == latClicked && d.LONG == longClicked) {
-                    selectMarker(d.HTML);
+                    selectMarker(markerSelectedNew, d.HTML);
                     break;
                 }
             }
@@ -444,8 +453,9 @@ function markerClickHandler(e) {
             for (let i = 0; i < dataChron.length; i++) {
                 const d = dataChron[i];
                 const dateIncident = adjustTimeZoneOffset(new Date(d.DATE));
+                // check if incident is also in date range, some incidents have the same locations
                 if (d.LAT == latClicked && d.LONG == longClicked && dateIncident >= fromDate && dateIncident <= toDate) {
-                    selectMarker(d.HTML);
+                    selectMarker(markerSelectedNew, d.HTML);
                     break;
                 }
             }
@@ -468,9 +478,6 @@ function defaultSidePanel() {
         // remove incident from DOM
         const incident = document.querySelector('.incident');
         incident.parentNode.removeChild(incident);
-        if (window.outerWidth >= 800) {
-            newRectsHandler();
-        }
     }
 }
 map.on('click', defaultSidePanel);
@@ -479,64 +486,64 @@ map.on('click', defaultSidePanel);
 /// BAR CHART RECT CLICK HANDLER ////
 /////////////////////////////////////
 
-// only larger devices have bar chart
+// rect click handler, change year when rect clicked
+function bindRectsClickHandler() {
+    barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
+        rect.addEventListener('click', function() {
+            console.log('rect clicked')
 
-var bindRectsClickHandler, newRectsHandler;
-if (window.outerWidth >= 800) {
-    
-    // rect click handler, change year when rect clicked
-    bindRectsClickHandler = function() {
-        barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
-            rect.addEventListener('click', function() {
-
-                // date type is year
-                if (dateType.value == 'year') {
-                    // plot new markers if different year selected
-                    if (year != window.yearClickedBarChart) {
-                        // update year
-                        year = window.yearClickedBarChart;
-                        // update date val with year clicked, window.yearClickedBarChart from passYearParent in barChart.js
-                        dateYear.value = year;
-                        // plot markers for year selected
-                        plotMarkersYear();
-                    }
-
-                // date type is custom
-                } else {
-                    // update fromDate, first day of year clicked
-                    const fromDate = '01/01/'+window.yearClickedBarChart;
-                    document.getElementById('date-custom-from').value = fromDate;
-                    
-                    // update date pickers
-                    // current year selected, toDate is today's date
-                    var toDate;
-                    if (window.yearClickedBarChart == yearCurrent) {
-                        toDate = today.getMonth()+'/'+today.getDate()+'/'+yearCurrent
-                    // previous year selected, toDate is last day of previous year
-                    } else {
-                        toDate = '12/31/'+window.yearClickedBarChart;
-                    }
-                    document.getElementById('date-custom-to').value = toDate;
-                    updateDatePickers();
-
+            // date type is year
+            if (dateType.value == 'year') {
+                // plot new markers if different year selected
+                // window.yearClickedBarChart from passYearParent in barChart.js
+                if (year != window.yearClickedBarChart) {
+                    // update year
+                    year = window.yearClickedBarChart;
+                    // update date val
+                    dateYear.value = year;
                     // plot markers for year selected
-                    plotMarkersCustomDate();
+                    plotMarkersYear();
                 }
-            })
-        })
-    }
 
-    newRectsHandler = function() {
-        if (window.innerWidth >= 800) {
-            setTimeout(function() {
-                bindRectsClickHandler();
-                barChart.contentDocument.getElementById('select-series').addEventListener('change', bindRectsClickHandler);    
-            }, 200);
-        }
-    }
-    barChart.addEventListener('load', newRectsHandler);
-    window.addEventListener('resize', newRectsHandler);
+            // date type is custom
+            } else {
+                // update to date, first day of year clicked
+                const fromDate = '01/01/'+window.yearClickedBarChart;
+                document.getElementById('date-custom-from').value = fromDate;
+                
+                // update to date
+                // current year selected, toDate is today's date
+                var toDate;
+                if (window.yearClickedBarChart == yearCurrent) {
+                    toDate = (new Date()).formatMMDDYYYY();
+                // previous year selected, toDate is last day of previous year
+                } else {
+                    toDate = '12/31/'+window.yearClickedBarChart;
+                }
+                document.getElementById('date-custom-to').value = toDate;
+
+                // update datepickers
+                updateDatePickers();
+                // plot markers for year selected
+                plotMarkersCustomDate();
+            }
+        })
+    })
 }
+
+function newRectsHandler() {
+    console.log('newRectsHandler fired')
+    // check for large layout, will throw errors if no bar chart
+    if (window.innerWidth >= 800) {
+        // without setTimeout the rects weren't getting selected sometimes
+        setTimeout(function() {
+            bindRectsClickHandler();
+            barChart.contentDocument.getElementById('select-series').addEventListener('change', bindRectsClickHandler);    
+        }, 200);
+    }
+}
+barChart.addEventListener('load', newRectsHandler);
+window.addEventListener('resize', newRectsHandler);
 
 // reset date type and year when navigating back to page
 window.addEventListener('beforeunload', function() {
