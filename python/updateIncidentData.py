@@ -113,6 +113,12 @@ def get_data(url):
         
         # minify report html
         incident = webd.minify(str(incident))
+            
+        # remove a element from h2
+        a_tag_open = re.search('<a.*?>', incident).group(0)
+        incident = incident.replace(a_tag_open, '')
+        a_tag_close = '</a>'
+        incident = incident.replace(a_tag_close, '')
         
         # parse date
         date_string = re.search('(?<=</span>).*?(?=<br)', incident).group(0)[1:]
