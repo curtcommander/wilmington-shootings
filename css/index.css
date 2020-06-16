@@ -135,7 +135,6 @@ iframe {
 
 .incident {
     font-size: min(4.5vmin, 16px);
-    height: 100%;
 }
 
 .incident_header {
