@@ -96,7 +96,7 @@ function plotCurrentData(dataCurrent) {
     for (let i = 0; i < dataCurrent.length; i++) {
         const d = dataCurrent[i];
         L.marker([d.LAT, d.LONG], {icon: icon})
-            .on("click", markerClickHandler)
+            .on('click', markerClickHandler)
             .addTo(markers)
     }
     markers.addTo(map);
@@ -188,7 +188,7 @@ function plotMarkersYear() {
     for (let i = 0; i < dataYear.length; i++) {
         const d = dataYear[i];
         L.marker([d.LAT, d.LONG], {icon: icon})
-            .on("click", markerClickHandler)
+            .on('click', markerClickHandler)
             .addTo(markers)};
     markers.addTo(map);
 }
@@ -218,7 +218,7 @@ function plotMarkersCustomDate() {
             // date is in custom range, add marker
             if (d.DATE >= fromDate) {
                 L.marker([d.LAT, d.LONG],{icon: icon})
-                    .on("click", markerClickHandler)
+                    .on('click', markerClickHandler)
                     .addTo(markers)
             // fromDate reached, break loop
             } else {
@@ -425,6 +425,7 @@ function markerClickHandler(e) {
     // clicking marker already selected pulls up default report
     const markerSelectedOld = document.querySelector('.marker-selected');
     const markerSelectedNew = e.target._icon;
+    window.s = e;
     if (markerSelectedOld == markerSelectedNew) {
         defaultSidePanel();
 
@@ -486,12 +487,16 @@ map.on('click', defaultSidePanel);
 /// BAR CHART RECT CLICK HANDLER ////
 /////////////////////////////////////
 
-// rect click handler, change year when rect clicked
-function bindRectsClickHandler() {
-    barChart.contentDocument.querySelectorAll('#svg-bar-chart rect').forEach(function(rect) {
-        rect.addEventListener('click', function() {
-            console.log('rect clicked')
+// gets target element from event object
+function getTarget(e) {
+    e = e || window.event;
+    return e.target || e.srcElement;
+}
 
+function barChartRectClickHandler() {
+    barChart.contentDocument.getElementById('svg-bar-chart').addEventListener('click', function(e) {    
+        const target = getTarget(e);
+        if (target.tagName == 'rect') {
             // date type is year
             if (dateType.value == 'year') {
                 // plot new markers if different year selected
@@ -504,7 +509,7 @@ function bindRectsClickHandler() {
                     // plot markers for year selected
                     plotMarkersYear();
                 }
-
+    
             // date type is custom
             } else {
                 // update to date, first day of year clicked
@@ -521,29 +526,16 @@ function bindRectsClickHandler() {
                     toDate = '12/31/'+window.yearClickedBarChart;
                 }
                 document.getElementById('date-custom-to').value = toDate;
-
+    
                 // update datepickers
                 updateDatePickers();
                 // plot markers for year selected
                 plotMarkersCustomDate();
             }
-        })
-    })
+        }
+    })    
 }
-
-function newRectsHandler() {
-    console.log('newRectsHandler fired')
-    // check for large layout, will throw errors if no bar chart
-    if (window.innerWidth >= 800) {
-        // without setTimeout the rects weren't getting selected sometimes
-        setTimeout(function() {
-            bindRectsClickHandler();
-            barChart.contentDocument.getElementById('select-series').addEventListener('change', bindRectsClickHandler);    
-        }, 200);
-    }
-}
-barChart.addEventListener('load', newRectsHandler);
-window.addEventListener('resize', newRectsHandler);
+barChart.addEventListener('load', barChartRectClickHandler);
 
 // reset date type and year when navigating back to page
 window.addEventListener('beforeunload', function() {

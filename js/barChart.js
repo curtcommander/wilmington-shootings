@@ -193,49 +193,6 @@ function addLabelsBarChart() {
     }
 }
 
-///////////////////////
-/// EVENT LISTENERS ///
-///////////////////////
-
-// outline around bars on hover
-// stroke appears around black rect when black rect or its corresponding red rect is hovered over
-
-// called in rectMouseenter and rectMouseout
-function getRectBlack(rect) {
-    const x = rect.attributes['x'].value
-    return d3.select('#rects-bar-chart-black rect[x="'+x+'"]');
-}
-
-function rectMouseover(rect) {
-    const rectBlack = getRectBlack(rect);
-    const h = Number(rectBlack.attr('height'));
-    rectBlack.attr('stroke', 'black');
-    rectBlack.attr('stroke-width', vh(1.5)+'px');
-    rectBlack.attr('stroke-opacity', '0.4');
-    rectBlack.attr('stroke-linecap', 'square');
-    rectBlack.attr('stroke-dasharray', (xBandwidth+h-vh(1.5)/2) + ' ' + (xBandwidth+vh(1.5)));
-}
-
-function rectMouseout(rect) {
-    const rectBlack = getRectBlack(rect);
-    rectBlack.attr('stroke-width', '0');
-}
-
-function bindRectHoverListeners () {
-    const rects = document.querySelectorAll('#rects-bar-chart rect');
-    rects.forEach(function(rect) {
-        rect.addEventListener('mouseover', function() {rectMouseover(rect)});
-        rect.addEventListener('mouseout', function() {rectMouseout(rect)});
-    })
-}
-
-// pass rect's corresponding year to parent document on click
-function bindRectClickListeners() {
-    d3.selectAll( '#rects-bar-chart rect' ).on('click', function(rect) {
-        window.top.yearClickedBarChart = rect.data.year;
-    });
-}
-
 //////////////
 /// LEGEND ///
 //////////////
@@ -342,8 +299,6 @@ function buildBarChart() {
     setSeriesVars();
     addRectsBarChart();
     addLabelsBarChart();
-    bindRectHoverListeners();
-    bindRectClickListeners();
 }
 
 // master function to build legend
@@ -400,8 +355,6 @@ function redrawSVGs() {
         resetBarChartDims();
         addRectsBarChart();
         addLabelsBarChart();
-        bindRectHoverListeners();
-        bindRectClickListeners();
         buildLegend();
     }
 }
@@ -410,4 +363,69 @@ window.addEventListener('resize', redrawSVGs);
 // reset series to Incidents when navigating back to page
 window.addEventListener('beforeunload', function() {
     document.getElementById('select-series').selectedIndex = 0;    
+})
+
+////////////////////////////
+/// RECT EVENT LISTENERS ///
+////////////////////////////
+
+// outline around bars on hover
+// stroke appears around black rect when black rect or its corresponding red rect is hovered over
+
+// get black rect from event object
+function getRectBlack(e) {
+    e = e || window.event;
+    const target = e.target || e.srcElement;
+    if (target.tagName == 'rect') {
+        const x = target.attributes['x'].value;
+        return d3.select('#rects-bar-chart-black rect[x="'+x+'"]');
+    } else {
+        return false;
+    }
+}
+
+function rectMouseover(e) {
+    // get black rect
+    const rectBlack = getRectBlack(e);
+    // apply stroke styles to black rect
+    if (rectBlack) {
+        window.r = rectBlack;
+        const h = Number(rectBlack.attr('height'));
+        rectBlack.attr('stroke', 'black');
+        rectBlack.attr('stroke-width', vh(1.5)+'px');
+        rectBlack.attr('stroke-opacity', '0.4');
+        rectBlack.attr('stroke-linecap', 'square');
+        // vh values included as a hack to get dasharray to work on iOS
+        rectBlack.attr('stroke-dasharray', (xBandwidth+h-vh(1.5)/2) + ' ' + (xBandwidth+vh(1.5)));
+    }
+}
+barChartSVG.addEventListener('mouseover', function(e) {
+    rectMouseover(e);
+});
+
+function rectMouseout(e) {
+    // get black rect
+    const rectBlack = getRectBlack(e);
+    window.e = e;
+    // make black rect's stroke width 0
+    if (rectBlack) {
+        rectBlack.attr('stroke-width', '0');
+    }
+}
+barChartSVG.addEventListener('mouseout', function(e) {
+    rectMouseout(e)
+});
+
+function rectClick(e) {
+    e = e || window.event;
+    const target = e.target || e.srcElement;
+    if (target.tagName == 'rect') {
+        const x = target.attributes['x'].value;
+        const y = target.attributes['y'].value;
+        const targetD3 = d3.select('#rects-bar-chart rect[x="'+x+'"][y="'+y+'"]');
+        window.top.yearClickedBarChart = targetD3.data()[0].data.year;
+    }
+}
+barChartSVG.addEventListener('click', function(e) {
+    rectClick(e);
 })
