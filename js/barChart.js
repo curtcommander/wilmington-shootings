@@ -25,7 +25,7 @@ const barChartD3 = d3.select('#svg-bar-chart');
 
 // x-axis
 let years = [];
-const yearCurrent = 2020;
+const yearCurrent=2021;
 let y = 2011;
 while (y <= yearCurrent) {
     years.push(y)
@@ -43,8 +43,8 @@ const xAxis = barChartD3
     .attr('class', 'axis')
 
 // y-axis
-const yMaxTotal = 197;
-const yMaxYTD = 90;
+const yMaxTotal=197;
+const yMaxYTD=24;
 
 const yScaleTotal = d3
     .scaleLinear()

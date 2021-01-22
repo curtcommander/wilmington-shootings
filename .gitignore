@@ -2,3 +2,7 @@ config.py
 push.sh
 notes.txt
 __pycache__/
+package/
+package.zip
+zip/
+layer/
