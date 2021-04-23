@@ -57,7 +57,7 @@ def handler(event, context):
 
     # s3
     else:
-        key = prefix+'/js/barChart.js'
+        key = 'js/barChart.js'
         js = get_object_s3(key)
 
         scales = re.findall('d3\.scaleLinear\(\)\.domain\(\[0,[0-9]*\]\)', js)

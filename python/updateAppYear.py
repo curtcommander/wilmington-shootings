@@ -59,7 +59,7 @@ def handler(event, context):
     with open('index.html', 'r+') as f:
         index = f.read()
   else:
-    key = prefix+'/index.html'
+    key = 'wilmington-shootings'
     index = get_object_s3(key)
 
   # get old select element
@@ -99,7 +99,7 @@ def handler(event, context):
 
   # s3
   else:
-    key = prefix+'/js/barChart.js'
+    key = 'js/barChart.js'
     js = get_object_s3(key)
 
     # set yearCurrent
