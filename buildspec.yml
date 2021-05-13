@@ -14,15 +14,12 @@ phases:
     commands:
       - echo Build started on `date`
       - bash minify.sh
-      - mkdir images
-      - mv gunIcon.png images/
-      - mv index.html wilmington-shootings.html
   post_build:
     commands:
       - echo Build completed on `date`
 artifacts:
   files:
-    - wilmington-shootings.html
+    - index.html
     - barChart.html
     - css/*
     - js/*
