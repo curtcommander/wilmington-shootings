@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
 
-'''
-This script makes adjustments to index.html and 
-barChart.js based on new data.
-
-index.html
-  - updates the options (years) for the select element with id 'date-val'
-
-barChart.js
-  - updates yearCurrent variable to be most recent year there is data for
-
-Required packages:
-  - pandas 
-'''
-
 import re
 import pandas as pd
 from utils import check_build, get_yearly_data
@@ -59,7 +45,7 @@ def handler(event, context):
     with open('index.html', 'r+') as f:
         index = f.read()
   else:
-    key = 'wilmington-shootings'
+    key = prefix + '/index.html'
     index = get_object_s3(key)
 
   # get old select element
@@ -99,7 +85,7 @@ def handler(event, context):
 
   # s3
   else:
-    key = 'js/barChart.js'
+    key = prefix + '/js/barChart.js'
     js = get_object_s3(key)
 
     # set yearCurrent

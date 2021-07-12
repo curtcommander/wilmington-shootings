@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
 
-'''
-This script scrapes yearly data from the Wilmington Shootings website.
-(https://data.delawareonline.com/utils/shootings.php)
-
-Totals for incidents, homicide incidents, victims, and deaths are found
-for year and year-to-date.
-
-Data is written to yearlyData.csv in wilmington-shootings/data/.
-
-Required packages:
-  - requests
-  - bs4
-  - pandas
-'''
-
 import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import sys
 from utils import check_build
 
 build = check_build()

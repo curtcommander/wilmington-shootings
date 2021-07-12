@@ -1,25 +1,5 @@
 #!/usr/bin/env python3
 
-'''
-This script scrapes incident data from the Wilmington Shootings website.
-(http://data.delawareonline.com/webapps/crime/)
-
-html, lat, long, date, and year are found for each incident.
-Files containing this data are outputted. Existing data files 
-are updated or new data files are created and written to.
-
-All data files are located in wilmington-shootings/data/.
-
-An API key is needed for the Google Maps Geocoding API.
-This is set in config.py (string named google_maps_key).
-
-Required packages:
-  - requests
-  - bs4
-  - htmlmin
-  - pandas
-'''
-
 import os
 import requests
 from bs4 import BeautifulSoup
