@@ -1,27 +1,9 @@
-'''
-Checks whether script is being run as part of build phase 
-or as an update to files s3.
-
-Output:
-  - Boolean
-'''
-
 def check_build():
   import sys
   if len(sys.argv) > 1:
     return sys.argv[1] == 'build'
   else:
     return False
-
-'''
-parse_date is called by updateIncidentData.py.
-
-Input:
-  - Date (string) of an incident scraped from Wilmingtong Shootings
-
-Ouput:
-  - List of two strings: ['YYYY', 'YYYY-MM-DD']
-'''
 
 def parse_date(date_string):
     import re
@@ -58,34 +40,12 @@ month_name_to_number = {
     'Dec' : '12',
 }
 
-'''
-Gets an object from a bucket.
-Bucket specified by config.bucket.
-
-Input:
-  - key: Path to object
-
-Output:
-  - String: object data
-'''
-
 def get_object_s3(key):
   import boto3
   from config import bucket_name
-  
   s3 = boto3.resource('s3')
   return s3.Object(bucket_name, key).get()['Body'].read().decode('utf-8')
 
-
-'''
-Gets yearly data dataframe.
-
-Input:
-  - build: get data from local or s3
-
-Output:
-  - Pandas dataframe: yearly data
-'''
 def get_yearly_data(build):
   import pandas as pd
   import io

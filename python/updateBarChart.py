@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
 
-'''
-This script adjusts y-axes in bar charts
-according to the time of year and is 
-to be run daily.
-
-Required packages:
-  - pandas 
-'''
-
 import re
-import pandas as pd
 import math
 from utils import check_build, get_yearly_data
 
