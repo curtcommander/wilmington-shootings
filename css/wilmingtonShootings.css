@@ -6,6 +6,17 @@
 :root {
     --color-marker: #D90022;
     --color-selected: black;
+    --font-weight-bold: 700;
+}
+
+@supports (-webkit-touch-callout: none) {
+    :root {
+      --font-weight-bold: 900;
+    }
+}
+
+strong {
+    font-weight: var(--font-weight-bold);
 }
 
 select:-moz-focusring {
@@ -28,6 +39,7 @@ h1 {
     color: white;
     text-align: center;
     font-size: 6.5vw;
+    font-weight: var(--font-weight-bold);
 }
 
 #container-date {
@@ -142,6 +154,7 @@ iframe {
     margin: 10px 0 5px;
     font-size: min(6vmin, 26px);
     font-family: 'Roboto Condensed', sans-serif;
+    font-weight: var(--font-weight-bold);
 }
 
 .incident .datetime {
