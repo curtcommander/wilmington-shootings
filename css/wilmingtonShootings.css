@@ -53,6 +53,7 @@ h1 {
 select, input {
     -webkit-appearance: none;
     -moz-appearance: none;
+    color:black!important;
 }
 
 select {
